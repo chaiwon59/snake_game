@@ -1,5 +1,22 @@
 import com.github.spotbugs.SpotBugsTask
 
+buildscript {
+
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven { url "https://plugins.gradle.org/m2/" }
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        jcenter()
+        google()
+    }
+    dependencies {
+
+
+    }
+}
+
 plugins {
     id 'java'
 //    id 'eclipse' // optional (to generate Eclipse project files)
@@ -16,7 +33,14 @@ plugins {
 
     // FindBugs / SpotBugs
     id "com.github.spotbugs" version "2.0.1"
+
+    id "org.springframework.boot" version "2.2.1.RELEASE"
+
+    id "io.spring.dependency-management" version "1.0.6.RELEASE"
+
+
 }
+apply plugin: 'java-library'
 
 group 'nl.tudelft.cse.sem.template'
 version '1.0-SNAPSHOT'
@@ -39,7 +63,31 @@ test {
 
 dependencies {
     testImplementation('org.junit.jupiter:junit-jupiter:5.5.2')
+
+    // https://mvnrepository.com/artifact/org.mockito/mockito-core
+    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.1.0'
+
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
+
+    api "com.badlogicgames.gdx:gdx:1.9.10"
+    api "com.badlogicgames.gdx:gdx-box2d:1.9.10"
+    api "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.10"
+    api "com.badlogicgames.gdx:gdx-platform:1.9.10:natives-desktop"
+    api "com.badlogicgames.gdx:gdx-box2d-platform:1.9.10:natives-desktop"
+    compile "org.springframework.boot:spring-boot-starter-web"
+    compile "org.springframework.boot:spring-boot-starter-jdbc"
+    compile group: 'org.springframework.data', name: 'spring-data-jpa', version: '2.2.1.RELEASE'
+    // https://mvnrepository.com/artifact/org.springframework.security/spring-security-core
+    compile group: 'org.springframework.security', name: 'spring-security-core', version: '5.2.1.RELEASE'
+    compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.18'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+        exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
+    }
+    testImplementation 'org.springframework.security:spring-security-test'
 }
 
 jacocoTestCoverageVerification {
@@ -52,11 +100,16 @@ jacocoTestCoverageVerification {
             limit {
                 counter = 'LINE'
                 value = 'TOTALCOUNT'
-                maximum = 0.3
+                minimum = 0.5
             }
         }
     }
 }
+
+
+
+
+
 
 checkstyle {
     toolVersion "8.25"
@@ -84,3 +137,30 @@ tasks.withType(SpotBugsTask) {
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
 }
+
+
+
+
+
+allprojects {
+
+    version = '1.0'
+    ext {
+        appName = "Snake"
+        gdxVersion = '1.9.10'
+        roboVMVersion = '2.3.7'
+        box2DLightsVersion = '1.4'
+        ashleyVersion = '1.7.0'
+        aiVersion = '1.8.0'
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        jcenter()
+        google()
+        maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
+        maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    }
+}
+
