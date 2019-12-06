@@ -69,6 +69,17 @@ dependencies {
 
     spotbugsPlugins 'com.h3xstream.findsecbugs:findsecbugs-plugin:1.7.1'
 
+    // https://mvnrepository.com/artifact/com.badlogicgames.gdx/gdx-backend-headless
+    compile group: 'com.badlogicgames.gdx', name: 'gdx-backend-headless', version: '1.9.10'
+
+
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+    compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12
+    testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
+    // https://mvnrepository.com/artifact/org.slf4j/slf4j-jdk14
+    testCompile group: 'org.slf4j', name: 'slf4j-jdk14', version: '1.7.5'
+
     api "com.badlogicgames.gdx:gdx:1.9.10"
     api "com.badlogicgames.gdx:gdx-box2d:1.9.10"
     api "com.badlogicgames.gdx:gdx-backend-lwjgl:1.9.10"
