@@ -20,13 +20,18 @@ public class Snake {
 
     private static final int SNAKESIZE = 9;
 
+    private transient int startInt;
+
+    private transient Direction direction = Direction.UP;
+
     /**
      * Creates a snake with the given attributes.
      * @param stepSize distance between squares
      * @param size size of the squares
      */
-    public Snake(int stepSize, float size) {
-        createSnake(stepSize, size);
+    public Snake(int stepSize, float size, int startInt) {
+        this.startInt = startInt;
+        createSnake(stepSize, size, startInt);
     }
 
     /**
@@ -46,10 +51,10 @@ public class Snake {
      * @param stepSize distance between squares
      * @param size size of the square
      */
-    public void createSnake(int stepSize, float size) {
+    public void createSnake(int stepSize, float size, int startInt) {
         List<Square> snake = new ArrayList<>();
         for (int i = 0; i < SNAKESIZE; i++) {
-            snake.add(new SnakeSquare(0, i * stepSize, size, size));
+            snake.add(new SnakeSquare(startInt, i * stepSize, size, size));
         }
         this.head = snake.get(snake.size() - 1);
         this.tail = snake.get(0);
@@ -116,7 +121,11 @@ public class Snake {
         this.body = body;
     }
 
-    public int getSnakeSize() {
-        return SNAKESIZE;
+    public Direction getDirection() {
+        return this.direction;
+    }
+
+    public void setDirection(Direction direction) {
+        this.direction = direction;
     }
 }

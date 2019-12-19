@@ -3,14 +3,14 @@ package snake;
 import java.util.ArrayList;
 import java.util.List;
 
-import snake.gui.Game;
+import snake.gui.LauncherClass;
 import snake.squares.BoardSquare;
 import snake.squares.Square;
 
 public class Board {
     private transient List<Square> squares;
 
-    private transient Game game;
+    private transient LauncherClass launcherClass;
 
     private transient float size;
     private transient float stepSize;
@@ -22,10 +22,10 @@ public class Board {
      *                 are (the width and height should be divisible by this number)
      * @param stepSize determines how many squares
      *                 there are (the width and height should be divisible by this number)
-     * @param game     Current game
+     * @param launcherClass     Current game
      */
-    public Board(Game game, int squareSize, int stepSize) {
-        this.game = game;
+    public Board(LauncherClass launcherClass, int squareSize, int stepSize) {
+        this.launcherClass = launcherClass;
 
         this.size = squareSize;
         this.stepSize = stepSize;
@@ -41,9 +41,9 @@ public class Board {
     public final List<Square> createBoard() {
         List<Square> currSquares = new ArrayList<>();
         //Go through all of the columns
-        for (int i = 0; i < game.getWidth(); i += stepSize) {
+        for (int i = 0; i < launcherClass.getWidth(); i += stepSize) {
             //Go through all of the rows
-            for (int j = 0; j < game.getHeight(); j += stepSize) {
+            for (int j = 0; j < launcherClass.getHeight(); j += stepSize) {
                 currSquares.add(new BoardSquare(i, j, size, size));
             }
         }
@@ -55,14 +55,14 @@ public class Board {
     }
 
     public float getWidth() {
-        return game.getWidth();
+        return launcherClass.getWidth();
     }
 
     public float getHeight() {
-        return game.getHeight();
+        return launcherClass.getHeight();
     }
 
-    public Game getGame() {
-        return this.game;
+    public LauncherClass getLauncherClass() {
+        return this.launcherClass;
     }
 }

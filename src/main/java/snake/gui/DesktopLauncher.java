@@ -19,7 +19,7 @@ public class DesktopLauncher {
         config.forceExit = true;
 
         //load the application
-        new LwjglApplication(new Game(config.width, config.height - 50) {
+        new LwjglApplication(new LauncherClass(config.width, config.height - 50) {
             @Override
             protected void setForegroundFps(int value) {
                 config.foregroundFPS = value;
