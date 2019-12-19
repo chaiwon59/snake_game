@@ -6,13 +6,13 @@ import static org.mockito.Mockito.mock;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import snake.gui.Game;
+import snake.gui.LauncherClass;
 import snake.squares.ColouredSquare;
 import snake.squares.Square;
 
 public class BoardTest {
     private transient Board board;
-    private transient Game game;
+    private transient LauncherClass launcherClass;
     private transient int squareSize;
     private transient int stepSize;
     private transient float height;
@@ -24,16 +24,16 @@ public class BoardTest {
      */
     @BeforeEach
     public void setUp() {
-        this.game = mock(Game.class);
+        this.launcherClass = mock(LauncherClass.class);
         this.squareSize = 48;
         this.stepSize = 50;
         this.height = 800;
         this.width = 800;
 
-        doReturn(height).when(game).getHeight();
-        doReturn(height).when(game).getWidth();
+        doReturn(height).when(launcherClass).getHeight();
+        doReturn(height).when(launcherClass).getWidth();
 
-        board = new Board(game, squareSize, stepSize);
+        board = new Board(launcherClass, squareSize, stepSize);
     }
 
     @Test

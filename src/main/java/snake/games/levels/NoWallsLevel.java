@@ -1,17 +1,18 @@
-package snake.levels;
+package snake.games.levels;
 
-import snake.Snake;
-import snake.gui.Game;
+import snake.games.Game;
+import snake.gui.LauncherClass;
 
 public class NoWallsLevel extends Level {
     /**
      * Constructs the board.
      * @param stepSize determines how many squares
      *                 there are (the width and height should be divisible by this number)
-     * @param game Current game
+     * @param launcherClass Current game
      */
-    public NoWallsLevel(Game game, int stepSize) {
-        super(game, stepSize);
+    public NoWallsLevel(Game game, LauncherClass launcherClass, int stepSize) {
+        super(game, launcherClass, stepSize);
+
     }
 
     /**
@@ -23,17 +24,17 @@ public class NoWallsLevel extends Level {
      */
     @Override
     public boolean checkValidity(float newX, float newY) {
-        if (newY > getGame().getHeight() - getStepSize()) {
-            move(newX, 0f);
+        if (newY > getLauncherClass().getHeight() - getStepSize()) {
+            move(newX, 0f, getCurrentSnake());
             return false;
-        } else if (newX > getGame().getWidth() - getStepSize()) {
-            move(0f, newY);
+        } else if (newX > getLauncherClass().getWidth() - getStepSize()) {
+            move(0f, newY, getCurrentSnake());
             return false;
         } else if (newX < 0) {
-            move(getGame().getWidth() - getStepSize(), newY);
+            move(getLauncherClass().getWidth() - getStepSize(), newY, getCurrentSnake());
             return false;
         } else if (newY < 0) {
-            move(newX, getGame().getHeight() - getStepSize());
+            move(newX, getLauncherClass().getHeight() - getStepSize(), getCurrentSnake());
             return false;
         }
         return true;

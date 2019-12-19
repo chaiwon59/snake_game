@@ -2,7 +2,7 @@ package snake.gui;
 
 import snake.User;
 
-public abstract class Game extends com.badlogic.gdx.Game {
+public abstract class LauncherClass extends com.badlogic.gdx.Game {
 
     private transient float width;
     private transient float height;
@@ -14,7 +14,7 @@ public abstract class Game extends com.badlogic.gdx.Game {
      * @param width  width of the window
      * @param height height of the window
      */
-    public Game(float width, float height) {
+    public LauncherClass(float width, float height) {
         this.width = width;
         this.height = height;
         this.user = new User();

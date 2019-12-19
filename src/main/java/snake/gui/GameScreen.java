@@ -10,10 +10,14 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import java.util.ArrayList;
 import java.util.List;
 
+import snake.Direction;
 import snake.MusicPlayer;
-import snake.levels.Level;
-import snake.levels.NoWallsLevel;
-import snake.levels.WalledLevel;
+import snake.Snake;
+import snake.games.Game;
+import snake.games.MultiPlayerGame;
+import snake.games.levels.Level;
+import snake.games.levels.NoWallsLevel;
+import snake.games.levels.WalledLevel;
 import snake.squares.ColouredSquare;
 import snake.squares.Square;
 
@@ -21,29 +25,48 @@ import snake.squares.Square;
 //suppress warning for enhanced for-loop
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
 public class GameScreen extends InputScreen implements Screen {
-    private transient Level level;
+    private transient Game game;
 
-    private transient Direction direction = Direction.UP;
-    private transient int stepSize;
-
-    private enum Direction {
-        UP, RIGHT, DOWN, LEFT
-    }
+    private transient ArrayList<Integer> keys1;
+    private transient ArrayList<Integer> keys2;
 
     /**
      * Initializes the snake.Gui.GameScreen.
      *
-     * @param stepSize determines the amount of squares
-     * @param game     instance of the getGame()
+     * @param game current instance of the game.
      */
-    public GameScreen(int stepSize, Game game) {
-        super(game);
-        this.stepSize = stepSize;
-        this.level = game.getUser().isNoWalls()
-                ? new NoWallsLevel(game, stepSize) : new WalledLevel(game, stepSize);
+    public GameScreen(Game game) {
+        super(game.getLauncher());
+        this.game = game;
 
-        getGame().setForegroundFps(6);
+        getLauncherClass().setForegroundFps(6);
+
+        this.keys1 = createKeys1();
+        this.keys2 = createKeys2();
     }
+
+    private ArrayList<Integer> createKeys1() {
+        ArrayList<Integer> result = new ArrayList<>();
+
+        result.add(Input.Keys.W);
+        result.add(Input.Keys.S);
+        result.add(Input.Keys.D);
+        result.add(Input.Keys.A);
+
+        return result;
+    }
+
+    private ArrayList<Integer> createKeys2() {
+        ArrayList<Integer> result = new ArrayList<>();
+
+        result.add(Input.Keys.UP);
+        result.add(Input.Keys.DOWN);
+        result.add(Input.Keys.RIGHT);
+        result.add(Input.Keys.LEFT);
+
+        return result;
+    }
+
 
     /**
      * Turns off the menu music and starts playing the ingame music.
@@ -68,10 +91,20 @@ public class GameScreen extends InputScreen implements Screen {
 
         if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)
                 || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
-            level.setPaused();
+            game.setPaused();
         }
         //Move the snake
-        move();
+        move(game.getPlayer1(), keys1);
+
+        //check whether the game is over (prevents overlapping death screens)
+        if (game.getGameIsOver()) {
+            return;
+        }
+
+        if (game instanceof MultiPlayerGame) {
+            move(((MultiPlayerGame) game).getPlayer2(), keys2);
+            ((MultiPlayerGame) game).checkSnakeCollision();
+        }
 
         //Renders the squares of the board and snake
         renderSquares();
@@ -79,37 +112,60 @@ public class GameScreen extends InputScreen implements Screen {
 
     /**
      * Creates a list of the primary actors.
+     *
      * @return list of actors.
      */
     @Override
     public List<Actor> createActors() {
         List<Actor> actors = new ArrayList<>();
-        actors.addAll(level.getSquares());
-        actors.addAll(level.getSnakeBody());
+        actors.addAll(game.getSquares());
+        actors.addAll(game.getPlayer1Body());
 
-        Square head = level.getHead();
+        if (game instanceof MultiPlayerGame) {
+            MultiPlayerGame mg = (MultiPlayerGame) game;
+            actors.addAll(mg.getPlayer2Body());
+
+            Square head2 = ((MultiPlayerGame) game).getPlayer2Head();
+            actors.add(new ColouredSquare(head2.getXvalue() + head2.getWidth() / 4,
+                    head2.getYvalue() + head2.getHeight() / 4,
+                    head2.getWidth() / 2, head2.getHeight() / 2, StyleUtility.getGreen()));
+        }
+
+        Square head = game.getPlayer1Head();
         actors.add(new ColouredSquare(head.getXvalue() + head.getWidth() / 4,
                 head.getYvalue() + head.getHeight() / 4,
                 head.getWidth() / 2, head.getHeight() / 2, StyleUtility.getGreen()));
-        actors.add(new ColouredSquare(0, getGame().getHeight(), getGame().getWidth(),
+        actors.add(new ColouredSquare(0,
+                getLauncherClass().getHeight(), getLauncherClass().getWidth(),
                 50, StyleUtility.getLightGrey()));
 
-        if (level.isPaused()) {
-            actors.add(new ColouredSquare(0, 0, getGame().getWidth(),
-                    getGame().getHeight(), StyleUtility.getPausedColor()));
+        if (game.isPaused()) {
+            actors.add(new ColouredSquare(0, 0, getLauncherClass().getWidth(),
+                    getLauncherClass().getHeight(), StyleUtility.getPausedColor()));
         }
         return actors;
     }
 
     /**
      * List of the secondary actors to be rendered.
+     *
      * @return list of actors
      */
     private List<Actor> createSecondaryActors() {
         List<Actor> actors = new ArrayList<>();
-        actors.add(createLabel(String.valueOf(level.getScore()), getGame().getHeight() + 10));
-        if (level.isPaused()) {
-            actors.add(createLabel("Paused, press escape to resume", getGame().getHeight() / 2));
+        if (game instanceof MultiPlayerGame) {
+            actors.add(createLabel(String.valueOf(game.getScore1()),
+                    getLauncherClass().getWidth() / 3, getLauncherClass().getHeight() + 10));
+            actors.add(createLabel(String.valueOf(((MultiPlayerGame) game).getScore2()),
+                    getLauncherClass().getWidth() * 2 / 3, getLauncherClass().getHeight() + 10));
+        } else {
+            actors.add(createLabel(String.valueOf(game.getScore1()), null,
+                    getLauncherClass().getHeight() + 10));
+        }
+
+        if (game.isPaused()) {
+            actors.add(createLabel("Paused, press escape to resume",
+                    null, getLauncherClass().getHeight() / 2));
         }
         return actors;
     }
@@ -127,7 +183,7 @@ public class GameScreen extends InputScreen implements Screen {
         //render the score
 
         batch.begin();
-        Square snackSquare = level.getSnack();
+        Square snackSquare = game.getSnack();
         batch.draw(StyleUtility.getSnack(), snackSquare.getXvalue(),
                 snackSquare.getYvalue(), snackSquare.getWidth(), snackSquare.getHeight());
 
@@ -138,26 +194,29 @@ public class GameScreen extends InputScreen implements Screen {
     }
 
     /**
-     * Method which moves the snake based on the user input.
+     * Moves the snake in the appropriate direction.
+     *
+     * @param snake snake which is to be moved
+     * @param keys  keys corresponding to up, down, right, left in that order.
      */
-    public void move() {
+    public void move(Snake snake, List<Integer> keys) {
         //Check the user input and move appropriately
         // and set the direction (still needs to be cleaned up).
-        if (!checkBeingPressed()) {
-            if (!checkJustPressed()) {
+        if (!checkBeingPressed(keys, snake.getDirection(), snake)) {
+            if (!checkJustPressed(keys, snake.getDirection(), snake)) {
                 //If there is no user-input keep moving in the previous direction.
-                switch (direction) {
+                switch (snake.getDirection()) {
                     case RIGHT:
-                        level.moveRight();
+                        game.moveRight(snake);
                         break;
                     case DOWN:
-                        level.moveDown();
+                        game.moveDown(snake);
                         break;
                     case LEFT:
-                        level.moveLeft();
+                        game.moveLeft(snake);
                         break;
                     default:
-                        level.moveUp();
+                        game.moveUp(snake);
                         break;
                 }
             }
@@ -166,24 +225,25 @@ public class GameScreen extends InputScreen implements Screen {
 
     /**
      * Checks whether the WASD-key is being pressed.
+     *
      * @return boolean indicating whether a key is being pressed.
      */
-    private boolean checkBeingPressed() {
-        if (Gdx.input.isKeyPressed(Input.Keys.W) && direction != Direction.DOWN) {
-            level.moveUp();
-            direction = Direction.UP;
+    private boolean checkBeingPressed(List<Integer> keys, Direction direction, Snake snake) {
+        if (Gdx.input.isKeyPressed(keys.get(0)) && direction != Direction.DOWN) {
+            game.moveUp(snake);
+            snake.setDirection(Direction.UP);
             return true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.S) && direction != Direction.UP) {
-            level.moveDown();
-            direction = Direction.DOWN;
+        } else if (Gdx.input.isKeyPressed(keys.get(1)) && direction != Direction.UP) {
+            game.moveDown(snake);
+            snake.setDirection(Direction.DOWN);
             return true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.D) && direction != Direction.LEFT) {
-            level.moveRight();
-            direction = Direction.RIGHT;
+        } else if (Gdx.input.isKeyPressed(keys.get(2)) && direction != Direction.LEFT) {
+            game.moveRight(snake);
+            snake.setDirection(Direction.RIGHT);
             return true;
-        } else if (Gdx.input.isKeyPressed(Input.Keys.A) && direction != Direction.RIGHT) {
-            level.moveLeft();
-            direction = Direction.LEFT;
+        } else if (Gdx.input.isKeyPressed(keys.get(3)) && direction != Direction.RIGHT) {
+            game.moveLeft(snake);
+            snake.setDirection(Direction.LEFT);
             return true;
         }
         return false;
@@ -191,24 +251,25 @@ public class GameScreen extends InputScreen implements Screen {
 
     /**
      * Checks whether a key was pressed since the previous frame.
+     *
      * @return boolean indicating whether a key was pressed.
      */
-    private boolean checkJustPressed() {
-        if (Gdx.input.isKeyJustPressed(Input.Keys.W) && direction != Direction.DOWN) {
-            level.moveUp();
-            direction = Direction.UP;
+    private boolean checkJustPressed(List<Integer> keys, Direction direction, Snake snake) {
+        if (Gdx.input.isKeyJustPressed(keys.get(0)) && direction != Direction.DOWN) {
+            game.moveUp(snake);
+            snake.setDirection(Direction.UP);
             return true;
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.S) && direction != Direction.UP) {
-            level.moveDown();
-            direction = Direction.DOWN;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(1)) && direction != Direction.UP) {
+            game.moveDown(snake);
+            snake.setDirection(Direction.DOWN);
             return true;
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.D) && direction != Direction.LEFT) {
-            level.moveRight();
-            direction = Direction.RIGHT;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(2)) && direction != Direction.LEFT) {
+            game.moveRight(snake);
+            snake.setDirection(Direction.RIGHT);
             return true;
-        } else if (Gdx.input.isKeyJustPressed(Input.Keys.A) && direction != Direction.RIGHT) {
-            level.moveLeft();
-            direction = Direction.LEFT;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(3)) && direction != Direction.RIGHT) {
+            game.moveLeft(snake);
+            snake.setDirection(Direction.LEFT);
             return true;
         }
         return false;

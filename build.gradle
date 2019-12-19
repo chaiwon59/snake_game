@@ -53,12 +53,11 @@ repositories {
 
 test {
     useJUnitPlatform()
-
     jacoco {
-        enabled = true
-        includes = ['nl.tudelft.cse.sem.*']
-        excludes = []
+        append = false
+        destinationFile = file("$buildDir/jacoco/jacocoTest.exec")
     }
+    //finalizedBy jacocoTestReport
 }
 
 dependencies {
@@ -101,26 +100,37 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
 }
 
+jacocoTestReport {
+    reports {
+        xml.enabled false
+        csv.enabled false
+    }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: ['snake/gui/**', 'snake/MusicPlayer**'])
+        })
+    }
+}
+
 jacocoTestCoverageVerification {
     violationRules {
         rule {
             enabled = true
-            element = 'CLASS'
-            includes = ['nl.tudelft.cse.sem.*']
 
             limit {
-                counter = 'LINE'
-                value = 'TOTALCOUNT'
-                minimum = 0.5
+                counter = 'BRANCH'
+                minimum = 0.80
             }
         }
     }
+    afterEvaluate {
+        classDirectories = files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: 'snake/gui/**')
+        })
+    }
 }
-
-
-
-
-
+check.dependsOn jacocoTestCoverageVerification
+tasks.build.dependsOn(jacocoTestReport)
 
 checkstyle {
     toolVersion "8.25"

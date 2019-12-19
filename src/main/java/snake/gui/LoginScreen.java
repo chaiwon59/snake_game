@@ -18,10 +18,10 @@ public class LoginScreen extends InputScreen {
     /**
      * Creates the snake.Gui.LoginScreen.
      *
-     * @param game current instance of the game
+     * @param launcherClass current instance of the game
      */
-    public LoginScreen(Game game) {
-        super(game);
+    public LoginScreen(LauncherClass launcherClass) {
+        super(launcherClass);
     }
 
     @Override
@@ -41,15 +41,16 @@ public class LoginScreen extends InputScreen {
      * @return button with a listener.
      */
     private TextButton createSubmitButton(TextField username, TextField password) {
-        return createButton("Log In", getGame().getWidth() / 3.33f, getGame().getWidth() / 1.778f,
+        return createButton("Log In",
+                getLauncherClass().getWidth() / 3.33f, getLauncherClass().getWidth() / 1.778f,
                 new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         try {
                             if (new Dao().checkUsernamePassword(
                                     username.getText(), password.getText())) {
-                                getGame().getUser().setUsername(username.getText());
-                                getGame().setScreen(new MainMenu(getGame()));
+                                getLauncherClass().getUser().setUsername(username.getText());
+                                getLauncherClass().setScreen(new MainMenu(getLauncherClass()));
                             }
                         } catch (SQLException e) {
 
@@ -64,11 +65,11 @@ public class LoginScreen extends InputScreen {
      * @return textbutton with the functionality
      */
     private TextButton createRegisterButton() {
-        return createButton("Register", getGame().getWidth() / 2.057f,
-                getGame().getHeight() / 1.778f, new ClickListener() {
+        return createButton("Register", getLauncherClass().getWidth() / 2.057f,
+                getLauncherClass().getHeight() / 1.778f, new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        getGame().setScreen(new RegisterScreen(getGame()));
+                        getLauncherClass().setScreen(new RegisterScreen(getLauncherClass()));
                     }
                 });
     }

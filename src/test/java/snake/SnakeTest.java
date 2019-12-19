@@ -69,7 +69,7 @@ public class SnakeTest {
 
     @Test
     public void testCreateSnake() {
-        snake.createSnake(50, 48);
+        snake.createSnake(50, 48, 0);
 
         assertEquals(9, snake.getBody().size());
         assertEquals(snake.getHead(), snake.getBody().get(8));

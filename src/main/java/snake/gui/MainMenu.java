@@ -10,15 +10,17 @@ import java.util.Arrays;
 import java.util.List;
 
 import snake.MusicPlayer;
+import snake.games.MultiPlayerGame;
+import snake.games.SinglePlayerGame;
 
 public class MainMenu extends InputScreen {
     /**
      * Creates the snake.Gui.LoginScreen.
      *
-     * @param game current instance of the game
+     * @param launcherClass current instance of the game
      */
-    public MainMenu(Game game) {
-        super(game);
+    public MainMenu(LauncherClass launcherClass) {
+        super(launcherClass);
     }
 
     @Override
@@ -28,7 +30,8 @@ public class MainMenu extends InputScreen {
     }
 
     public List<Actor> createActors() {
-        return new ArrayList<>(Arrays.asList(createPlayLabel(), createSettingsLabel()));
+        return new ArrayList<>(
+                Arrays.asList(createPlayLabel1P(), createPlayLabel2P(), createSettingsLabel()));
     }
 
     /**
@@ -36,13 +39,31 @@ public class MainMenu extends InputScreen {
      *
      * @return label with the functionality
      */
-    private Label createPlayLabel() {
-        return createLabelWithOnClick("Play!", getGame().getHeight() / 1.75f, new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                getGame().setScreen(new GameScreen(50, getGame()));
-            }
-        });
+    private Label createPlayLabel1P() {
+        return createLabelWithOnClick("Play 1P!",
+                getLauncherClass().getHeight() / 1.75f, new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        getLauncherClass().setScreen(
+                                new GameScreen(new SinglePlayerGame(getLauncherClass(), 50)));
+                    }
+                });
+    }
+
+    /**
+     * Creates play label with onclick to change to gamescreen.
+     *
+     * @return label with the functionality
+     */
+    private Label createPlayLabel2P() {
+        return createLabelWithOnClick("Play 2P!", getLauncherClass().getHeight() / 1.97f,
+                new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        getLauncherClass().setScreen(
+                                new GameScreen(new MultiPlayerGame(getLauncherClass(), 50)));
+                    }
+                });
     }
 
     /**
@@ -51,11 +72,12 @@ public class MainMenu extends InputScreen {
      * @return label with the functionality
      */
     private Label createSettingsLabel() {
-        return createLabelWithOnClick("Settings!", getGame().getHeight() / 2f, new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                getGame().setScreen(new SettingsScreen(getGame()));
-            }
-        });
+        return createLabelWithOnClick("Settings!",
+                getLauncherClass().getHeight() / 2.25f, new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        getLauncherClass().setScreen(new SettingsScreen(getLauncherClass()));
+                    }
+                });
     }
 }

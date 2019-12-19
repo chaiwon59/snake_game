@@ -14,10 +14,10 @@ public class RegisterScreen extends InputScreen {
     /**
      * Creates the snake.Gui.LoginScreen.
      *
-     * @param game current instance of the game
+     * @param launcherClass current instance of the game
      */
-    public RegisterScreen(Game game) {
-        super(game);
+    public RegisterScreen(LauncherClass launcherClass) {
+        super(launcherClass);
     }
 
     @Override
@@ -37,12 +37,12 @@ public class RegisterScreen extends InputScreen {
      * @return Button with the given functionality.
      */
     private TextButton createRegisterButton(TextField username, TextField password) {
-        return createButton("Register", getGame().getWidth() / 2.55f,
-                getGame().getHeight() / 1.778f, new ClickListener() {
+        return createButton("Register", getLauncherClass().getWidth() / 2.55f,
+                getLauncherClass().getHeight() / 1.778f, new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         if (new Dao().insertUser(username.getText(), password.getText())) {
-                            getGame().setScreen(new LoginScreen(getGame()));
+                            getLauncherClass().setScreen(new LoginScreen(getLauncherClass()));
                         }
                     }
                 });

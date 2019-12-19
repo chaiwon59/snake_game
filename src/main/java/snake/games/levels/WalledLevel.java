@@ -1,8 +1,7 @@
-package snake.levels;
+package snake.games.levels;
 
-import snake.MusicPlayer;
-import snake.gui.DeathScreen;
-import snake.gui.Game;
+import snake.games.Game;
+import snake.gui.LauncherClass;
 
 public class WalledLevel extends Level {
 
@@ -10,10 +9,10 @@ public class WalledLevel extends Level {
      * Constructs the board.
      * @param stepSize determines how many squares
      *                 there are (the width and height should be divisible by this number)
-     * @param game Current game
+     * @param launcherClass Current game
      */
-    public WalledLevel(Game game, int stepSize) {
-        super(game,stepSize);
+    public WalledLevel(Game game, LauncherClass launcherClass, int stepSize) {
+        super(game, launcherClass,stepSize);
     }
 
     /**
@@ -25,8 +24,8 @@ public class WalledLevel extends Level {
      */
     @Override
     public boolean checkValidity(float newX, float newY) {
-        if (newY > getGame().getHeight() - getStepSize()
-                || newX > getGame().getWidth() - getStepSize()
+        if (newY > getLauncherClass().getHeight() - getStepSize()
+                || newX > getLauncherClass().getWidth() - getStepSize()
                 || newX < 0
                 || newY < 0) {
             setDied();

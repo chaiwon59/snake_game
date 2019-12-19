@@ -11,8 +11,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public class SettingsScreen extends InputScreen {
-    public SettingsScreen(Game game) {
-        super(game);
+    public SettingsScreen(LauncherClass launcherClass) {
+        super(launcherClass);
     }
 
     @Override
@@ -26,14 +26,15 @@ public class SettingsScreen extends InputScreen {
 
     /**
      * Creates a checkbox with the given values.
-     * @param text Text next to the checkbox
-     * @param y y-coordinate of the checkbox
+     *
+     * @param text    Text next to the checkbox
+     * @param y       y-coordinate of the checkbox
      * @param checked boolean indicating whether the checkbox should be checked
      * @return checkbox with given values
      */
     private CheckBox createCheckBox(String text, float y, boolean checked) {
         CheckBox checkBox = new CheckBox(text, getSkin());
-        checkBox.setPosition((getGame().getWidth() - checkBox.getWidth()) / 2,
+        checkBox.setPosition((getLauncherClass().getWidth() - checkBox.getWidth()) / 2,
                 y);
         if (checked) {
             checkBox.setChecked(true);
@@ -43,45 +44,49 @@ public class SettingsScreen extends InputScreen {
 
     /**
      * Creates checkbox for the no walls setting.
+     *
      * @return checkbox
      */
     private CheckBox createCheckBoxNoWalls() {
-        return createCheckBox(" No Walls", getGame().getHeight() / 1.75f,
-                getGame().getUser().isNoWalls());
+        return createCheckBox(" No Walls", getLauncherClass().getHeight() / 1.75f,
+                getLauncherClass().getUser().isNoWalls());
     }
 
     /**
      * Creates checkbox for the no grid setting.
+     *
      * @return checkbox
      */
     private CheckBox createCheckBoxNoGrid() {
-        return createCheckBox(" No Grid", getGame().getHeight() / 1.9f,
-                getGame().getUser().isNoGrid());
+        return createCheckBox(" No Grid", getLauncherClass().getHeight() / 1.9f,
+                getLauncherClass().getUser().isNoGrid());
     }
 
     /**
      * Creates textbutton which saves the indicated settings in the user class.
+     *
      * @param noWalls checkbox for the no walls setting
-     * @param noGrid checkbox for the no grid setting
+     * @param noGrid  checkbox for the no grid setting
      * @return save button with the given functionality
      */
     private TextButton createSaveButton(CheckBox noWalls, CheckBox noGrid) {
-        return createButton("Save", null, getGame().getHeight() / 2.25f, new ClickListener() {
-            @Override
-            public void clicked(InputEvent event, float x, float y) {
-                if (noWalls.isChecked()) {
-                    getGame().getUser().setNoWalls(true);
-                } else {
-                    getGame().getUser().setNoWalls(false);
-                }
+        return createButton("Save", null,
+                getLauncherClass().getHeight() / 2.25f, new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        if (noWalls.isChecked()) {
+                            getLauncherClass().getUser().setNoWalls(true);
+                        } else {
+                            getLauncherClass().getUser().setNoWalls(false);
+                        }
 
-                if (noGrid.isChecked()) {
-                    getGame().getUser().setNoGrid(true);
-                } else {
-                    getGame().getUser().setNoGrid(false);
-                }
-                getGame().setScreen(new MainMenu(getGame()));
-            }
-        });
+                        if (noGrid.isChecked()) {
+                            getLauncherClass().getUser().setNoGrid(true);
+                        } else {
+                            getLauncherClass().getUser().setNoGrid(false);
+                        }
+                        getLauncherClass().setScreen(new MainMenu(getLauncherClass()));
+                    }
+                });
     }
 }
