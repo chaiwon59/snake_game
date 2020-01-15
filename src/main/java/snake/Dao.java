@@ -1,6 +1,7 @@
 package snake;
 
 import com.badlogic.gdx.Gdx;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -85,18 +86,20 @@ public class Dao {
      *
      * @param username username to be inserted
      * @param password password to be inserted
+     * @param email    email to be inserted
      * @return true if the user was successfully inserted,
      *      false if the username already existed
      */
-    public boolean insertUser(String username, String password) {
+    public boolean insertUser(String username, String password, String email) {
         if (checkExistentUsername(username)) {
             return false;
         }
         try {
             PreparedStatement query = conn.prepareStatement(
-                    "INSERT INTO user (username, password, highscore) VALUES (?, ?, 0)");
+                    "INSERT INTO user (username, password, highscore, email) VALUES (?, ?, 0, ?)");
             query.setString(1, username);
             query.setString(2, encoder.encode(password));
+            query.setString(3, email);
             return query.executeUpdate() == 1;
         } catch (SQLException e) {
 
@@ -201,8 +204,9 @@ public class Dao {
 
     /**
      * Updates the score of the user if the score is higher than the current highscore.
+     *
      * @param username username of the user
-     * @param score achieved score of the user.
+     * @param score    achieved score of the user.
      */
     public void updateScore(String username, int score) {
         try {
@@ -210,8 +214,73 @@ public class Dao {
                 setHighscore(username, score);
             }
         } catch (SQLException e) {
-
             Gdx.app.exit();
+        }
+    }
+
+    /**
+     * Updates the password of the given user.
+     *
+     * @param username username of the user.
+     * @param password new password for the user.
+     * @param reset    boolean indicating whether on startup, the password should be changed.
+     */
+    public void updatePassword(String username, String password, boolean reset) {
+        try {
+            PreparedStatement query = conn.prepareStatement(
+                    "UPDATE user SET password=?, reset=? WHERE username=?");
+            query.setString(1, encoder.encode(password));
+            query.setBoolean(2, reset);
+            query.setString(3, username);
+
+
+            query.executeUpdate();
+        } catch (SQLException e) {
+            Gdx.app.exit();
+        }
+    }
+
+    /**
+     * Returns the email of the user.
+     *
+     * @param username username for which the email will be retrieved.
+     * @return email of the user.
+     */
+    public String getEmail(String username) throws SQLException {
+        try {
+            PreparedStatement query = conn.prepareStatement(
+                    "SELECT email FROM user WHERE username=?");
+            query.setString(1, username);
+
+            result = query.executeQuery();
+            result.next();
+            return result.getString(1);
+        } finally {
+            if (result != null) {
+                result.close();
+            }
+        }
+    }
+
+    /**
+     * Checks whether the user needs to enter a new password.
+     *
+     * @param username user of the username for which the boolean will be retrieved.
+     * @return boolean indicating whether a reset needs to occur.
+     */
+    public boolean isReset(String username) throws SQLException {
+        try {
+            PreparedStatement query = conn.prepareStatement(
+                    "SELECT reset FROM user WHERE username=?");
+            query.setString(1, username);
+
+            result = query.executeQuery();
+            result.next();
+            return result.getBoolean(1);
+        } finally {
+            if (result != null) {
+                result.close();
+            }
         }
     }
 }

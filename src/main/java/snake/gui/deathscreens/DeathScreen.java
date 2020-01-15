@@ -1,18 +1,13 @@
 package snake.gui.deathscreens;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 import snake.Dao;
-import snake.gui.GameScreen;
 import snake.gui.InputScreen;
 import snake.gui.LauncherClass;
 import snake.gui.MainMenu;
@@ -35,7 +30,7 @@ public abstract class DeathScreen extends InputScreen {
     public DeathScreen(int score, int stepSize, LauncherClass launcherClass) {
         super(launcherClass);
         this.score = score;
-        this.dao = new Dao();
+        this.dao = launcherClass.dao;
         this.stepSize = stepSize;
     }
 

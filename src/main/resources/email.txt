@@ -1,0 +1,6 @@
+Hey {Username},
+
+Here is your new password: {Password}
+After you login, you will be prompted to enter a new password, please do so as soon as possible.
+
+Hope you will continue to enjoy playing our game!

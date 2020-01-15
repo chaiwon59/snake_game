@@ -4,15 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+
+import com.badlogic.gdx.Application;
+import com.badlogic.gdx.Files;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.backends.headless.HeadlessNativesLoader;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,13 +24,13 @@ import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
+import org.mockito.Mockito;
 import snake.Dao;
 import snake.Snake;
 import snake.User;
 import snake.games.Game;
-import snake.games.SnackBuilder;
+import snake.games.builders.SnackBuilder;
+import snake.games.powerups.PowerUp;
 import snake.gui.LauncherClass;
 import snake.squares.ColouredSquare;
 import snake.squares.Square;
@@ -47,6 +51,8 @@ public abstract class LevelTest {
     transient Game game;
 
     transient SnackBuilder builder;
+
+    transient Preferences prefs;
 
     public abstract Level makeLevel(Game game, LauncherClass launcherClass, int stepsize);
 
@@ -72,6 +78,14 @@ public abstract class LevelTest {
 
     @BeforeEach
     void setUp() {
+        HeadlessNativesLoader.load();
+
+        Gdx.files = Mockito.mock(Files.class);
+        Gdx.app = Mockito.mock(Application.class);
+        prefs = Mockito.mock(Preferences.class);
+
+        Mockito.doReturn(prefs).when(Gdx.app).getPreferences(any(String.class));
+
         this.game = mock(Game.class);
         this.launcherClass = mock(LauncherClass.class);
         User user = new User();
@@ -91,13 +105,13 @@ public abstract class LevelTest {
         this.dao = mock(Dao.class);
 
 
-        this.builder = new SnackBuilder(launcherClass, stepsize, stepsize);
-        builder.createSnack(snake.getBody());
+        this.builder = new SnackBuilder(game, launcherClass, stepsize, stepsize);
+        builder.createSnack();
 
         doAnswer(invocation -> builder.getSnackSquare()).when(game).getSnackSquare();
         doAnswer(invocation -> builder.getSnack()).when(game).getSnack();
         doAnswer(invocation -> {
-            builder.createSnack(snake.getBody());
+            builder.createSnack();
             return null;
         }).when(game).createSnack();
     }
@@ -211,7 +225,7 @@ public abstract class LevelTest {
 
     @Test
     public void testMakeSnack() {
-        this.builder = new SnackBuilder(launcherClass, stepsize, stepsize);
+        this.builder = new SnackBuilder(game, launcherClass, stepsize, stepsize);
 
         assertNull(game.getSnack());
 
@@ -247,5 +261,80 @@ public abstract class LevelTest {
         assertEquals(prevTail, snake.getTail());
         assertEquals(prevSize + 1, snake.getBody().size());
         verify(game, times(1)).updateScore(any(Snake.class));
+    }
+
+    @Test
+    public void testSnakeMoveIntoSelf() {
+        assertFalse(level.died);
+
+        final Square head = snake.getHead();
+        level.move(head.getXvalue(), head.getYvalue(), snake);
+
+        assertTrue(level.died);
+    }
+
+    @Test
+    public void testSetPaused() {
+        assertFalse(level.isPaused());
+
+        level.setPaused();
+
+        assertTrue(level.isPaused());
+
+        level.setPaused();
+
+        assertFalse(level.isPaused());
+    }
+
+    @Test
+    public void testPowerUpNull() {
+        testMoveUp();
+
+        verify(game, times(1)).getPowerUp();
+        verify(game, times(0)).resetNextPowerUpTime();
+    }
+
+    @Test
+    public void testPowerUpActive() {
+        PowerUp powerUp = mock(PowerUp.class);
+
+        Square powerUpSquare = mock(Square.class);
+
+        doReturn(powerUp).when(game).getPowerUp();
+        doReturn(true).when(game).isActive();
+        doReturn(powerUpSquare).when(game).getPowerUpSquare();
+
+        testPowerUpNull();
+    }
+
+    @Test
+    public void testPowerUpInActive() {
+        PowerUp powerUp = mock(PowerUp.class);
+
+        Square powerUpSquare = mock(Square.class);
+
+        doReturn(powerUp).when(game).getPowerUp();
+        doReturn(false).when(game).isActive();
+        doReturn(powerUpSquare).when(game).getPowerUpSquare();
+
+        testPowerUpNull();
+    }
+
+    @Test
+    public void testPowerUpTaken() {
+        PowerUp powerUp = mock(PowerUp.class);
+
+        doReturn(powerUp).when(game).getPowerUp();
+        doReturn(false).when(game).isActive();
+
+        Square head = snake.getHead();
+        Square newHead = new Square(
+                head.getXvalue(), head.getYvalue() + stepsize, head.getWidth(), head.getHeight());
+        doReturn(newHead).when(game).getPowerUpSquare();
+
+        level.moveUp(snake);
+
+        verify(powerUp, times(1)).apply(snake);
+        verify(game, times(1)).resetNextPowerUpTime();
     }
 }

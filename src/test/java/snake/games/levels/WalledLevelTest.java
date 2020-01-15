@@ -6,7 +6,6 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.Test;
 import snake.games.Game;
-import snake.games.SnackBuilder;
 import snake.gui.LauncherClass;
 
 public class WalledLevelTest extends LevelTest {

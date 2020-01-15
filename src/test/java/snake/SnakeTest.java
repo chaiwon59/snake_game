@@ -101,4 +101,36 @@ public class SnakeTest {
         assertEquals(new Square(1, 0, 0, 0), snake.getHead());
         assertEquals(prevTail, snake.getTail());
     }
+
+    @Test
+    public void testIncreaseScore() {
+        assertEquals(0, snake.getScore());
+
+        snake.increaseScore();
+
+        assertEquals(10, snake.getScore());
+    }
+
+    @Test
+    public void testSetScoreIncrease() {
+        assertEquals(10, snake.getScoreIncrease());
+
+        snake.setScoreIncrease(20);
+
+        assertEquals(20, snake.getScoreIncrease());
+    }
+
+    @Test
+    public void testGetDirection() {
+        assertEquals(Direction.UP, snake.getDirection());
+    }
+
+    @Test
+    public void testSetDirection() {
+        testGetDirection();
+
+        snake.setDirection(Direction.DOWN);
+
+        assertEquals(Direction.DOWN, snake.getDirection());
+    }
 }

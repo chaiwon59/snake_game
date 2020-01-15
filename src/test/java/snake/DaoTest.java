@@ -24,6 +24,7 @@ import org.mockito.internal.verification.Times;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class DaoTest {
+    private transient String username = "username";
     private transient Dao dao;
 
     private transient BCryptPasswordEncoder encoder;
@@ -73,27 +74,31 @@ public class DaoTest {
     @Test
     public void insertUserExistentUsername() throws SQLException {
         doReturn(true).when(result).next();
-        assertEquals(false, dao.insertUser(RandomString.make(), RandomString.make()));
+        assertEquals(false,
+                dao.insertUser(RandomString.make(), RandomString.make(), RandomString.make()));
     }
 
     @Test
     public void insertUserNonExistentUsername() throws SQLException {
         doReturn(false).when(result).next();
         doReturn(1).when(query).executeUpdate();
-        assertEquals(true, dao.insertUser(RandomString.make(), RandomString.make()));
+        assertEquals(true,
+                dao.insertUser(RandomString.make(), RandomString.make(), RandomString.make()));
     }
 
     @Test
     public void insertUserFailedUpdate() throws SQLException {
         doReturn(false).when(result).next();
         doReturn(0).when(query).executeUpdate();
-        assertEquals(false, dao.insertUser(RandomString.make(), RandomString.make()));
+        assertEquals(false,
+                dao.insertUser(RandomString.make(), RandomString.make(), RandomString.make()));
     }
 
     @Test
     public void insertUserError() throws SQLException {
         doThrow(SQLException.class).when(conn).prepareStatement(any(String.class));
-        assertEquals(false, dao.insertUser(RandomString.make(), RandomString.make()));
+        assertEquals(false,
+                dao.insertUser(RandomString.make(), RandomString.make(), RandomString.make()));
     }
 
 
@@ -224,5 +229,34 @@ public class DaoTest {
         dao.updateScore("test", 10);
 
         verify(query, times(0)).executeUpdate();
+    }
+
+    @Test
+    public void updatePassword() throws SQLException {
+        dao.updatePassword(RandomString.make(), RandomString.make(), true);
+
+        verify(query, times(1)).executeUpdate();
+    }
+
+    @Test
+    public void testGetEmail() throws SQLException {
+        doReturn("answer").when(result).getString(1);
+
+        assertEquals("answer", dao.getEmail(username));
+
+        verify(query, times(1)).setString(1, username);
+        verify(conn, times(1)).prepareStatement(any(String.class));
+    }
+
+    @Test
+    public void testIsReset() throws SQLException {
+        doReturn(true).when(result).getBoolean(1);
+
+        assertTrue(dao.isReset(username));
+
+        verify(conn, times(1)).prepareStatement(any(String.class));
+        verify(query, times(1)).setString(1, username);
+        verify(query, times(1)).executeQuery();
+        verify(result, times(1)).next();
     }
 }

@@ -9,8 +9,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import snake.games.SinglePlayerGame;
-import snake.gui.GameScreen;
 import snake.gui.LauncherClass;
+import snake.gui.gamescreens.SinglePlayerGameScreen;
 
 public class SinglePlayerDeathScreen extends DeathScreen {
 
@@ -34,7 +34,8 @@ public class SinglePlayerDeathScreen extends DeathScreen {
                 @Override
                 public void clicked(InputEvent event, float x, float y) {
                     getLauncherClass().setScreen(
-                            new GameScreen(new SinglePlayerGame(getLauncherClass(), stepSize)));
+                            new SinglePlayerGameScreen(
+                                    new SinglePlayerGame(getLauncherClass(), stepSize)));
                 }
             }));
 

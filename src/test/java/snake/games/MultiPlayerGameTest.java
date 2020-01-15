@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import snake.Snake;
@@ -41,29 +42,29 @@ public class MultiPlayerGameTest extends GameTest {
         super.testConstructor();
 
         assertEquals(snake2, game.getPlayer2());
-        assertEquals(0, game.score2);
+        assertEquals(0, game.getScore2());
     }
 
     @Test
     public void testUpdateScorePlayer1() {
-        assertEquals(0, game.score1);
-        assertEquals(0, game.score2);
+        assertEquals(0, game.getScore1());
+        assertEquals(0, game.getScore2());
 
         game.updateScore(snake);
 
-        assertEquals(10, game.score1);
-        assertEquals(0, game.score2);
+        verify(snake, times(1)).increaseScore();
+        verify(snake2, times(0)).increaseScore();
     }
 
     @Test
     public void testUpdateScorePlayer2() {
-        assertEquals(0, game.score1);
-        assertEquals(0, game.score2);
+        assertEquals(0, game.getScore1());
+        assertEquals(0, game.getScore2());
 
         game.updateScore(snake2);
 
-        assertEquals(0, game.score1);
-        assertEquals(10, game.score2);
+        verify(snake, times(0)).increaseScore();
+        verify(snake2, times(1)).increaseScore();
     }
 
     @Test
@@ -153,8 +154,14 @@ public class MultiPlayerGameTest extends GameTest {
     public void testCreateSnack() {
         game.createSnack();
 
+        verify(builder, times(1)).createSnack();
+    }
+
+    @Test
+    public void testForbiddenSquares() {
+        game.getForbiddenSquares();
+
         verify(snake, times(1)).getBody();
         verify(snake2, times(1)).getBody();
-        verify(builder, times(1)).createSnack(any(List.class));
     }
 }

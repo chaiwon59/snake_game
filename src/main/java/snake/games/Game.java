@@ -1,10 +1,14 @@
 package snake.games;
 
 import java.util.List;
+
 import snake.Snake;
+import snake.games.builders.PowerUpBuilder;
+import snake.games.builders.SnackBuilder;
 import snake.games.levels.Level;
 import snake.games.levels.NoWallsLevel;
 import snake.games.levels.WalledLevel;
+import snake.games.powerups.PowerUp;
 import snake.gui.LauncherClass;
 import snake.squares.Square;
 
@@ -16,15 +20,16 @@ public abstract class Game {
 
     transient Snake player1;
 
-    transient int score1;
-
     transient boolean gameIsOver;
 
     transient SnackBuilder builder;
 
+    transient PowerUpBuilder powerUpBuilder;
+
 
     /**
      * Instantiates the game class.
+     *
      * @param launcher instance of the launcher
      * @param stepSize size of squares
      */
@@ -38,24 +43,33 @@ public abstract class Game {
         this.level = launcher.getUser().isNoWalls()
                 ? new NoWallsLevel(this, launcher, stepSize)
                 : new WalledLevel(this, launcher, stepSize);
-        this.score1 = 0;
         this.gameIsOver = false;
-        this.builder = new SnackBuilder(launcher, stepSize, squareSize);
+
+        this.builder = new SnackBuilder(this, launcher, stepSize, squareSize);
+        this.powerUpBuilder = new PowerUpBuilder(this, launcher, stepSize, squareSize);
     }
 
     /**
      * Creates a new snack.
      */
-    public abstract void createSnack();
+    public void createSnack() {
+        builder.createSnack();
+    }
+
+    public abstract List<Square> getForbiddenSquares();
 
     /**
      * Updates the score corresponding to the right snake.
+     *
      * @param snake player for which the score is updated
      */
-    public abstract void updateScore(Snake snake);
+    public void updateScore(Snake snake) {
+        snake.increaseScore();
+    }
 
     /**
      * Ends the game and sets the appropriate death screen.
+     *
      * @param losingSnake snake which lost
      */
     public abstract void gameOver(Snake losingSnake);
@@ -97,7 +111,7 @@ public abstract class Game {
     }
 
     public int getScore1() {
-        return score1;
+        return player1.getScore();
     }
 
     public Square getSnack() {
@@ -118,5 +132,25 @@ public abstract class Game {
 
     public LauncherClass getLauncher() {
         return this.launcher;
+    }
+
+    public Square getPowerUpSquare() {
+        return powerUpBuilder.getPowerUpSquare();
+    }
+
+    public PowerUp getPowerUp() {
+        return powerUpBuilder.getPowerUp();
+    }
+
+    public boolean isActive() {
+        return getPowerUp().isActive();
+    }
+
+    public void decreaseTime(float delta) {
+        powerUpBuilder.decreaseTime(delta);
+    }
+
+    public void resetNextPowerUpTime() {
+        powerUpBuilder.resetNextPowerUpTime();
     }
 }

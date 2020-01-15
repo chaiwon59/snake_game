@@ -8,9 +8,11 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-
 import java.util.ArrayList;
 import java.util.LinkedList;
+import snake.games.powerups.PowerUp;
+import snake.games.powerups.ScoreIncreasePowerUp;
+import snake.games.powerups.SpeedPowerUp;
 
 public final class StyleUtility {
     private static final transient BitmapFont font = new BitmapFont(
@@ -32,6 +34,14 @@ public final class StyleUtility {
             Gdx.files.internal("better.mp3"));
     private static final transient Music ingame2 = Gdx.audio.newMusic(
             Gdx.files.internal("sinatra.mp3"));
+    private static final transient Texture multiplier = new Texture(
+            Gdx.files.internal("2x.png"));
+    private static final transient Music multiplierSound = Gdx.audio.newMusic(
+            Gdx.files.internal("sfShort.mp3"));
+    private static final transient Texture speedup = new Texture(
+            Gdx.files.internal("speedup.png"));
+    private static final transient Music speedupSound = Gdx.audio.newMusic(
+            Gdx.files.internal("speed.mp3"));
 
     private static final transient ShapeRenderer renderer = new ShapeRenderer();
     private static final Color green = new Color(0, 1, 0, 1);
@@ -84,6 +94,36 @@ public final class StyleUtility {
 
     public static Music getMenuSound1() {
         return menuSound1;
+    }
+
+    public static Texture getMultiplier() {
+        return multiplier;
+    }
+
+    public static Music getMultiplierSound() {
+        return multiplierSound;
+    }
+
+    public static Texture getSpeedup() {
+        return speedup;
+    }
+
+    public static Music getSpeedupSound() {
+        return speedupSound;
+    }
+
+    /**
+     * Returns the appropriate texture of the given power up.
+     * @param power powerup of which the texture will be provided
+     * @return texture of the power up
+     */
+    public static Texture getPowerUpTexture(PowerUp power) {
+        if (power instanceof ScoreIncreasePowerUp) {
+            return multiplier;
+        } else if (power instanceof SpeedPowerUp) {
+            return speedup;
+        }
+        return null;
     }
 
 
