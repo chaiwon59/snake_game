@@ -21,7 +21,7 @@ public class DesktopLauncher {
         //load the application
         new LwjglApplication(new LauncherClass(config.width, config.height - 50) {
             @Override
-            protected void setForegroundFps(int value) {
+            public void setForegroundFps(int value) {
                 config.foregroundFPS = value;
             }
         }, config);

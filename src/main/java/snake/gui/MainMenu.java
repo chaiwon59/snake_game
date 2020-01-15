@@ -9,11 +9,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import snake.EmailSender;
 import snake.MusicPlayer;
 import snake.games.MultiPlayerGame;
 import snake.games.SinglePlayerGame;
+import snake.gui.gamescreens.MultiPlayerGameScreen;
+import snake.gui.gamescreens.SinglePlayerGameScreen;
 
 public class MainMenu extends InputScreen {
+
     /**
      * Creates the snake.Gui.LoginScreen.
      *
@@ -45,7 +49,8 @@ public class MainMenu extends InputScreen {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         getLauncherClass().setScreen(
-                                new GameScreen(new SinglePlayerGame(getLauncherClass(), 50)));
+                                new SinglePlayerGameScreen(
+                                        new SinglePlayerGame(getLauncherClass(), 50)));
                     }
                 });
     }
@@ -61,7 +66,8 @@ public class MainMenu extends InputScreen {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         getLauncherClass().setScreen(
-                                new GameScreen(new MultiPlayerGame(getLauncherClass(), 50)));
+                                new MultiPlayerGameScreen(
+                                        new MultiPlayerGame(getLauncherClass(), 50)));
                     }
                 });
     }

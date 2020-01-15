@@ -5,7 +5,6 @@ import static org.springframework.test.util.AssertionErrors.assertNotEquals;
 
 import org.junit.jupiter.api.Test;
 import snake.games.Game;
-import snake.games.SnackBuilder;
 import snake.gui.LauncherClass;
 import snake.squares.ColouredSquare;
 import snake.squares.Square;

@@ -7,9 +7,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import snake.Dao;
@@ -48,16 +45,23 @@ public class SinglePlayerGameTest extends GameTest {
 
     @Test
     public void updateScore() {
-        assertEquals(0, game.score1);
+        assertEquals(0, game.getScore1());
 
         game.updateScore(snake);
 
-        assertEquals(10, game.score1);
+        verify(snake, times(1)).increaseScore();
     }
 
     @Test
     public void testCreateSnack() {
-        builder.createSnack(new ArrayList<>());
-        verify(builder, times(1)).createSnack(any(List.class));
+        builder.createSnack();
+        verify(builder, times(1)).createSnack();
+    }
+
+    @Test
+    public void testForbiddenSquares() {
+        game.getForbiddenSquares();
+
+        verify(snake, times(1)).getBody();
     }
 }

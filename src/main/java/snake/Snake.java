@@ -24,18 +24,28 @@ public class Snake {
 
     private transient Direction direction = Direction.UP;
 
+    private transient int score;
+
+    private transient int scoreIncrease;
+
+    private transient int numberOfMoves = 1;
+
     /**
      * Creates a snake with the given attributes.
+     *
      * @param stepSize distance between squares
-     * @param size size of the squares
+     * @param size     size of the squares
      */
     public Snake(int stepSize, float size, int startInt) {
         this.startInt = startInt;
         createSnake(stepSize, size, startInt);
+        this.score = 0;
+        this.scoreIncrease = 10;
     }
 
     /**
      * Creates snake with the given attributes.
+     *
      * @param head head of the snake
      * @param tail tail of the snake
      * @param body body of the snake (includes head and tail)
@@ -44,12 +54,16 @@ public class Snake {
         this.head = head;
         this.tail = tail;
         this.body = body;
+
+        this.score = 0;
+        this.scoreIncrease = 10;
     }
 
     /**
      * Method which creates the snake.
+     *
      * @param stepSize distance between squares
-     * @param size size of the square
+     * @param size     size of the square
      */
     public void createSnake(int stepSize, float size, int startInt) {
         List<Square> snake = new ArrayList<>();
@@ -63,6 +77,7 @@ public class Snake {
 
     /**
      * Moves the snake to the given x and y coordinate.
+     *
      * @param newX new x-coordinate of the head
      * @param newY new y-coordinate of the head
      * @return boolean indicating whether the snake died or not
@@ -90,11 +105,23 @@ public class Snake {
 
     /**
      * Indicates that a snack was eaten last move.
-     *      Adds the previous tail back to the list and sets it as the current tail
+     * Adds the previous tail back to the list and sets it as the current tail
      */
     public void ateSnack() {
         body.add(0, prevTail);
         tail = prevTail;
+    }
+
+    public void increaseScore() {
+        this.score += scoreIncrease;
+    }
+
+    public void setScoreIncrease(int scoreIncrease) {
+        this.scoreIncrease = scoreIncrease;
+    }
+
+    public int getScoreIncrease() {
+        return scoreIncrease;
     }
 
     public Square getHead() {
@@ -127,5 +154,17 @@ public class Snake {
 
     public void setDirection(Direction direction) {
         this.direction = direction;
+    }
+
+    public int getScore() {
+        return this.score;
+    }
+
+    public int getNumberOfMoves() {
+        return numberOfMoves;
+    }
+
+    public void setNumberOfMoves(int newNumber) {
+        this.numberOfMoves = newNumber;
     }
 }

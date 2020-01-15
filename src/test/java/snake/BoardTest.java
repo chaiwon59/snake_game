@@ -3,6 +3,8 @@ package snake;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +33,7 @@ public class BoardTest {
         this.width = 800;
 
         doReturn(height).when(launcherClass).getHeight();
-        doReturn(height).when(launcherClass).getWidth();
+        doReturn(width).when(launcherClass).getWidth();
 
         board = new Board(launcherClass, squareSize, stepSize);
     }
@@ -48,5 +50,20 @@ public class BoardTest {
                 assertEquals(testSquare, board.getSquares().get(counter++));
             }
         }
+    }
+
+    @Test
+    public void testGetWidth() {
+        assertEquals(width, board.getWidth());
+    }
+
+    @Test
+    public void testGetHeight() {
+        assertEquals(height, board.getHeight());
+    }
+
+    @Test
+    public void testGetLauncherClass() {
+        assertEquals(launcherClass, board.getLauncherClass());
     }
 }

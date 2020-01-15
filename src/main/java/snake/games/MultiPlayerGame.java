@@ -2,6 +2,7 @@ package snake.games;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import snake.MusicPlayer;
 import snake.Snake;
 import snake.gui.LauncherClass;
@@ -10,10 +11,10 @@ import snake.squares.Square;
 
 public class MultiPlayerGame extends Game {
     transient Snake player2;
-    transient int score2;
 
     /**
      * Creates instance of a MultiPlayerGame.
+     *
      * @param launcher instance of the launcher class
      * @param stepSize size of the steps when creating squares
      */
@@ -21,17 +22,6 @@ public class MultiPlayerGame extends Game {
         super(launcher, stepSize);
 
         this.player2 = new Snake(stepSize, squareSize, (int) launcher.getWidth() - stepSize);
-        this.score2 = 0;
-    }
-
-    @Override
-    public void updateScore(Snake snake) {
-        if (snake.equals(player1)) {
-            score1 += 10;
-        }
-        if (snake.equals(player2)) {
-            score2 += 10;
-        }
     }
 
     /**
@@ -48,11 +38,11 @@ public class MultiPlayerGame extends Game {
     }
 
     @Override
-    public void createSnack() {
+    public List<Square> getForbiddenSquares() {
         List<Square> bodies = new ArrayList<>(player1.getBody());
         bodies.addAll(player2.getBody());
 
-        builder.createSnack(bodies);
+        return bodies;
     }
 
     @Override
@@ -62,7 +52,7 @@ public class MultiPlayerGame extends Game {
         MusicPlayer.stopInGame();
         MusicPlayer.playDeathMusic();
 
-        launcher.setScreen(new MultiPlayerDeathScreen(score2, stepSize, launcher,
+        launcher.setScreen(new MultiPlayerDeathScreen(getScore2(), stepSize, launcher,
                 losingSnake.equals(player1) ? "Player 2 Won!" : "Player 1 Won!"));
     }
 
@@ -79,6 +69,6 @@ public class MultiPlayerGame extends Game {
     }
 
     public int getScore2() {
-        return score2;
+        return player2.getScore();
     }
 }

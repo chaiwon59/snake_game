@@ -85,6 +85,7 @@ public class SettingsScreen extends InputScreen {
                         } else {
                             getLauncherClass().getUser().setNoGrid(false);
                         }
+                        getLauncherClass().getUser().flushSettings();
                         getLauncherClass().setScreen(new MainMenu(getLauncherClass()));
                     }
                 });

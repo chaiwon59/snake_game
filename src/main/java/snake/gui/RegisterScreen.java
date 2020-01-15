@@ -24,9 +24,25 @@ public class RegisterScreen extends InputScreen {
     public List<Actor> createActors() {
         TextField username = createUsernameField();
         TextField password = createPasswordField();
-        TextButton register = createRegisterButton(username, password);
+        TextField email = createEmailField();
+        TextButton register = createRegisterButton(username, password, email);
 
-        return new ArrayList<>(Arrays.asList(username, password, register));
+        return new ArrayList<>(Arrays.asList(email, username, password, register));
+    }
+
+    /**
+     * Creates the email text field.
+     * @return email text field.
+     */
+    public TextField createEmailField() {
+        TextField email = new TextField("", getSkin());
+        email.setWidth(300);
+        email.setHeight(25f);
+        email.setPosition(getLauncherClass().getWidth() / 3.33f,
+                getLauncherClass().getHeight() / 1.34f);
+
+        email.setMessageText("Email");
+        return email;
     }
 
     /**
@@ -36,13 +52,17 @@ public class RegisterScreen extends InputScreen {
      * @param password password of the user
      * @return Button with the given functionality.
      */
-    private TextButton createRegisterButton(TextField username, TextField password) {
+    private TextButton createRegisterButton(
+            TextField username, TextField password, TextField email) {
         return createButton("Register", getLauncherClass().getWidth() / 2.55f,
                 getLauncherClass().getHeight() / 1.778f, new ClickListener() {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
-                        if (new Dao().insertUser(username.getText(), password.getText())) {
+                        if (getLauncherClass().dao.insertUser(
+                                username.getText(), password.getText(), email.getText())) {
                             getLauncherClass().setScreen(new LoginScreen(getLauncherClass()));
+                        } else {
+                            createDialog("Username already exists", "Error");
                         }
                     }
                 });

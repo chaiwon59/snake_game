@@ -1,12 +1,14 @@
 package snake.gui;
 
+import snake.Dao;
 import snake.User;
 
 public abstract class LauncherClass extends com.badlogic.gdx.Game {
 
     private transient float width;
     private transient float height;
-    private transient User user;
+    public transient Dao dao;
+    public transient User user;
 
     /**
      * Constructor of the Game class.
@@ -17,7 +19,7 @@ public abstract class LauncherClass extends com.badlogic.gdx.Game {
     public LauncherClass(float width, float height) {
         this.width = width;
         this.height = height;
-        this.user = new User();
+        this.dao = new Dao();
     }
 
     /**
@@ -38,7 +40,7 @@ public abstract class LauncherClass extends com.badlogic.gdx.Game {
     public void dispose() {
     }
 
-    protected abstract void setForegroundFps(int value);
+    public abstract void setForegroundFps(int value);
 
     public float getWidth() {
         return width;

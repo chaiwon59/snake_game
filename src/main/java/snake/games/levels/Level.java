@@ -6,7 +6,6 @@ import snake.Board;
 import snake.MusicPlayer;
 import snake.Snake;
 import snake.games.Game;
-import snake.games.SnackBuilder;
 import snake.gui.LauncherClass;
 import snake.squares.Square;
 
@@ -20,7 +19,7 @@ public abstract class Level {
     private transient int stepSize;
     private transient int squareSize;
 
-    private transient boolean died;
+    transient boolean died;
 
     private transient Snake currentSnake;
 
@@ -28,8 +27,9 @@ public abstract class Level {
 
     /**
      * Constructor of the level.
+     *
      * @param launcherClass current instance of the game.
-     * @param stepSize distance between squares.
+     * @param stepSize      distance between squares.
      */
     public Level(Game game, LauncherClass launcherClass, int stepSize) {
         this.launcherClass = launcherClass;
@@ -52,6 +52,7 @@ public abstract class Level {
 
     /**
      * Moves the snake up by calling the move method.
+     *
      * @param snake snake to be moved
      */
     public void moveUp(Snake snake) {
@@ -60,6 +61,7 @@ public abstract class Level {
 
     /**
      * Moves the snake down by calling the move method.
+     *
      * @param snake snake to be moved
      */
     public void moveDown(Snake snake) {
@@ -68,6 +70,7 @@ public abstract class Level {
 
     /**
      * Moves the snake right by calling the move method.
+     *
      * @param snake snake to be moved
      */
     public void moveRight(Snake snake) {
@@ -76,6 +79,7 @@ public abstract class Level {
 
     /**
      * Moves the snake left by calling the move method.
+     *
      * @param snake snake to be moved
      */
     public void moveLeft(Snake snake) {
@@ -84,8 +88,9 @@ public abstract class Level {
 
     /**
      * Moves the given snake to the new coordinates.
-     * @param newX new x-value of the snake
-     * @param newY new y-value of the snake
+     *
+     * @param newX  new x-value of the snake
+     * @param newY  new y-value of the snake
      * @param snake snake to be moved
      */
     public void move(float newX, float newY, Snake snake) {
@@ -108,6 +113,12 @@ public abstract class Level {
                 MusicPlayer.playSnackMusic();
                 game.updateScore(snake);
                 game.createSnack();
+            }
+            if (game.getPowerUp() != null
+                    && !game.isActive() && game.getPowerUpSquare().equals(snake.getHead())) {
+                game.getPowerUp().apply(snake);
+                MusicPlayer.playPowerUpMusic(game.getPowerUp());
+                game.resetNextPowerUpTime();
             }
         }
 

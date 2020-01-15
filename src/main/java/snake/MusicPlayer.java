@@ -2,6 +2,9 @@ package snake;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import snake.games.powerups.PowerUp;
+import snake.games.powerups.ScoreIncreasePowerUp;
+import snake.games.powerups.SpeedPowerUp;
 import snake.gui.StyleUtility;
 
 public final class MusicPlayer {
@@ -16,13 +19,50 @@ public final class MusicPlayer {
      */
     public static void playSnackMusic() {
         new Thread(() -> {
-            Gdx.app.postRunnable(() -> {
-                Music snackSound = StyleUtility.getSnackSound();
-                if (snackSound.isPlaying()) {
-                    snackSound.stop();
-                }
-                snackSound.play();
-            });
+            Music snackSound = StyleUtility.getSnackSound();
+            if (snackSound.isPlaying()) {
+                snackSound.stop();
+            }
+            snackSound.play();
+        }).start();
+    }
+
+    /**
+     * Plays music depending on the powerup.
+     *
+     * @param powerUp powerup of which the music will be played.
+     */
+    public static void playPowerUpMusic(PowerUp powerUp) {
+        if (powerUp instanceof ScoreIncreasePowerUp) {
+            playMultiplierMusic();
+        } else if (powerUp instanceof SpeedPowerUp) {
+            playSpeedMusic();
+        }
+    }
+
+    /**
+     * Plays the music for the Score Increase, checks first whether the sound if current playing.
+     */
+    public static void playMultiplierMusic() {
+        new Thread(() -> {
+            Music multiplierSound = StyleUtility.getMultiplierSound();
+            if (multiplierSound.isPlaying()) {
+                multiplierSound.stop();
+            }
+            multiplierSound.play();
+        }).start();
+    }
+
+    /**
+     * Plays the music for the snack, checks first whether the sound if current playing.
+     */
+    public static void playSpeedMusic() {
+        new Thread(() -> {
+            Music speedUpSound = StyleUtility.getSpeedupSound();
+            if (speedUpSound.isPlaying()) {
+                speedUpSound.stop();
+            }
+            speedUpSound.play();
         }).start();
     }
 
@@ -30,9 +70,7 @@ public final class MusicPlayer {
      * Plays the sound when dying.
      */
     public static void playDeathMusic() {
-        new Thread(() -> {
-            Gdx.app.postRunnable(() -> StyleUtility.getDeathSound().play());
-        }).start();
+        new Thread(() -> StyleUtility.getDeathSound().play()).start();
     }
 
     /**
@@ -40,10 +78,8 @@ public final class MusicPlayer {
      */
     public static void playInGame() {
         new Thread(() -> {
-            Gdx.app.postRunnable(() -> {
-                inGameMusic = StyleUtility.getIngame();
-                inGameMusic.play();
-            });
+            inGameMusic = StyleUtility.getIngame();
+            inGameMusic.play();
         }).start();
     }
 
@@ -52,9 +88,7 @@ public final class MusicPlayer {
      */
     public static void stopInGame() {
         new Thread(() -> {
-            Gdx.app.postRunnable(() -> {
-                inGameMusic.stop();
-            });
+            inGameMusic.stop();
         }).start();
     }
 
@@ -62,17 +96,13 @@ public final class MusicPlayer {
      * Plays the menu music.
      */
     public static void playMenu() {
-        new Thread(() -> {
-            Gdx.app.postRunnable(() -> StyleUtility.getMenuSound1().play());
-        }).start();
+        new Thread(() -> StyleUtility.getMenuSound1().play()).start();
     }
 
     /**
      * Stops the menu music.
      */
     public static void stopMenu() {
-        new Thread(() -> {
-            Gdx.app.postRunnable(() -> StyleUtility.getMenuSound1().stop());
-        }).start();
+        new Thread(() -> StyleUtility.getMenuSound1().stop()).start();
     }
 }

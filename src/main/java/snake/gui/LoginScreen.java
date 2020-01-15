@@ -13,8 +13,11 @@ import java.util.Arrays;
 import java.util.List;
 
 import snake.Dao;
+import snake.User;
 
 public class LoginScreen extends InputScreen {
+    private transient Dao dao;
+
     /**
      * Creates the snake.Gui.LoginScreen.
      *
@@ -22,6 +25,7 @@ public class LoginScreen extends InputScreen {
      */
     public LoginScreen(LauncherClass launcherClass) {
         super(launcherClass);
+        this.dao = launcherClass.dao;
     }
 
     @Override
@@ -31,11 +35,14 @@ public class LoginScreen extends InputScreen {
         TextButton submit = createSubmitButton(username, password);
         TextButton register = createRegisterButton();
 
-        return new ArrayList<>(Arrays.asList(username, password, submit, register));
+
+        return new ArrayList<>(
+                Arrays.asList(username, password, submit, register, createResetButton()));
     }
 
     /**
      * Create a submit button which switches the screen if the combination is valid.
+     *
      * @param username username of the user
      * @param password password of the user
      * @return button with a listener.
@@ -47,10 +54,19 @@ public class LoginScreen extends InputScreen {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         try {
-                            if (new Dao().checkUsernamePassword(
+                            if (dao.checkUsernamePassword(
                                     username.getText(), password.getText())) {
+                                getLauncherClass().user = new User();
                                 getLauncherClass().getUser().setUsername(username.getText());
-                                getLauncherClass().setScreen(new MainMenu(getLauncherClass()));
+
+                                if (dao.isReset(username.getText())) {
+                                    getLauncherClass().setScreen(
+                                            new UpdatePasswordScreen(getLauncherClass()));
+                                } else {
+                                    getLauncherClass().setScreen(new MainMenu(getLauncherClass()));
+                                }
+                            } else {
+                                createDialog("Username and Password don't match", "Error");
                             }
                         } catch (SQLException e) {
 
@@ -62,6 +78,7 @@ public class LoginScreen extends InputScreen {
 
     /**
      * Creates a register button which changes the screen to the register screen.
+     *
      * @return textbutton with the functionality
      */
     private TextButton createRegisterButton() {
@@ -70,6 +87,21 @@ public class LoginScreen extends InputScreen {
                     @Override
                     public void clicked(InputEvent event, float x, float y) {
                         getLauncherClass().setScreen(new RegisterScreen(getLauncherClass()));
+                    }
+                });
+    }
+
+    /**
+     * Creates a reset password button which changes the screen to the reset screen.
+     *
+     * @return textbutton with the functionality
+     */
+    private TextButton createResetButton() {
+        return createButton("Reset Password", getLauncherClass().getWidth() / 3f,
+                getLauncherClass().getHeight() / 2.0f, new ClickListener() {
+                    @Override
+                    public void clicked(InputEvent event, float x, float y) {
+                        getLauncherClass().setScreen(new ResetScreen(getLauncherClass()));
                     }
                 });
     }

@@ -6,8 +6,9 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import java.util.ArrayList;
 import java.util.List;
 import snake.games.MultiPlayerGame;
-import snake.gui.GameScreen;
 import snake.gui.LauncherClass;
+import snake.gui.gamescreens.MultiPlayerGameScreen;
+import snake.gui.gamescreens.SinglePlayerGameScreen;
 
 public class MultiPlayerDeathScreen extends DeathScreen {
     transient String winningPlayer;
@@ -34,7 +35,8 @@ public class MultiPlayerDeathScreen extends DeathScreen {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 getLauncherClass().setScreen(
-                        new GameScreen(new MultiPlayerGame(getLauncherClass(), stepSize)));
+                        new MultiPlayerGameScreen(
+                                new MultiPlayerGame(getLauncherClass(), stepSize)));
             }
         }));
         result.add(createMainMenuButton());

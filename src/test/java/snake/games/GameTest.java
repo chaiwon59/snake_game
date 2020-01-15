@@ -1,6 +1,8 @@
 package snake.games;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -13,16 +15,22 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import snake.Snake;
 import snake.User;
+import snake.games.builders.PowerUpBuilder;
+import snake.games.builders.SnackBuilder;
 import snake.games.levels.Level;
+import snake.games.powerups.PowerUp;
 import snake.gui.LauncherClass;
+import snake.squares.Square;
 
 public abstract class GameTest {
+    transient User user;
     transient Game game;
     transient int stepsize = 50;
     transient LauncherClass launcher;
     transient Level level;
     transient Snake snake;
     transient SnackBuilder builder;
+    transient PowerUpBuilder powerUpBuilder;
 
     /**
      * Sets up the test environment.
@@ -30,7 +38,7 @@ public abstract class GameTest {
     @BeforeEach
     public void setUp() {
         this.launcher = mock(LauncherClass.class);
-        User user = new User();
+        this.user = mock(User.class);
         doReturn(800f).when(launcher).getWidth();
         doReturn(800f).when(launcher).getHeight();
         doReturn(user).when(launcher).getUser();
@@ -38,10 +46,12 @@ public abstract class GameTest {
         this.level = mock(Level.class);
         this.snake = mock(Snake.class);
         this.builder = mock(SnackBuilder.class);
+        this.powerUpBuilder = mock(PowerUpBuilder.class);
         this.game = spy(makeGame(launcher, stepsize));
         game.level = level;
         game.player1 = snake;
         game.builder = builder;
+        game.powerUpBuilder = powerUpBuilder;
     }
 
     public abstract Game makeGame(LauncherClass launcher, int stepsize);
@@ -58,7 +68,7 @@ public abstract class GameTest {
         assertEquals(launcher, game.launcher);
         assertEquals(stepsize, game.stepSize);
         assertEquals(level, game.level);
-        assertEquals(0, game.score1);
+        assertEquals(0, game.getScore1());
         assertEquals(false, game.gameIsOver);
     }
 
@@ -115,9 +125,9 @@ public abstract class GameTest {
     public void testGetScore1() {
         assertEquals(0, game.getScore1());
 
-        game.score1 += 10;
+        game.updateScore(snake);
 
-        assertEquals(10, game.getScore1());
+        verify(snake, times(1)).increaseScore();
     }
 
     @Test
@@ -149,5 +159,43 @@ public abstract class GameTest {
         game.gameIsOver = true;
 
         assertEquals(true, game.getGameIsOver());
+    }
+
+    @Test
+    public void testGetPowerUpSquare() {
+        game.getPowerUpSquare();
+        verify(powerUpBuilder, times(1)).getPowerUpSquare();
+    }
+
+    @Test
+    public void testGetPowerUp() {
+        game.getPowerUp();
+        verify(powerUpBuilder, times(1)).getPowerUp();
+    }
+
+    @Test
+    public void testIsActive() {
+        PowerUp mockPower = mock(PowerUp.class);
+        doReturn(mockPower).when(powerUpBuilder).getPowerUp();
+
+        game.isActive();
+
+        verify(mockPower, times(1)).isActive();
+    }
+
+    @Test
+    public void testDecreaseTime() {
+        final float delta = 5;
+
+        game.decreaseTime(delta);
+
+        verify(powerUpBuilder, times(1)).decreaseTime(delta);
+    }
+
+    @Test
+    public void testResetNextPowerUpTime() {
+        game.resetNextPowerUpTime();
+
+        verify(powerUpBuilder, times(1)).resetNextPowerUpTime();
     }
 }

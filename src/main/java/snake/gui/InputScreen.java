@@ -1,11 +1,13 @@
 package snake.gui;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.Dialog;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
@@ -120,6 +122,7 @@ public abstract class InputScreen implements Screen {
         username.setWidth(300);
         username.setHeight(25f);
         username.setPosition(launcherClass.getWidth() / 3.33f, launcherClass.getHeight() / 1.455f);
+        username.setMessageText("Username");
         return username;
     }
 
@@ -135,7 +138,24 @@ public abstract class InputScreen implements Screen {
         password.setPasswordCharacter('*');
         password.setWidth(300);
         password.setPosition(launcherClass.getWidth() / 3.33f, launcherClass.getHeight() / 1.6f);
+        password.setMessageText("Password");
         return password;
+    }
+
+    /**
+     * Creates a new dialog with the given error message.
+     * @param text text of the error message
+     */
+    public void createDialog(String text, String title) {
+        Dialog dialog = new Dialog(title, getSkin(), "dialog");
+        dialog.padTop(35);
+
+        Label label = new Label("\n" + text + "\n",
+                StyleUtility.getSkin().get("optional", Label.LabelStyle.class));
+        dialog.text(label);
+        dialog.button("Confirm", true);
+
+        dialog.show(stage);
     }
 
     public LauncherClass getLauncherClass() {
@@ -144,6 +164,10 @@ public abstract class InputScreen implements Screen {
 
     public Skin getSkin() {
         return StyleUtility.getSkin();
+    }
+
+    public Stage getStage() {
+        return stage;
     }
 
     /**
@@ -171,12 +195,10 @@ public abstract class InputScreen implements Screen {
         batch.begin();
         batch.draw(StyleUtility.getBackground(),
                 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-
-        Array<Actor> actors = stage.getActors();
-        for (int i = 0; i < actors.size; i++) {
-            actors.get(i).draw(batch, 1);
-        }
         batch.end();
+
+        stage.act();
+        stage.draw();
     }
 
     @Override

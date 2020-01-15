@@ -1,4 +1,4 @@
-package snake.gui;
+package snake.gui.gamescreens;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -8,8 +8,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.springframework.security.core.parameters.P;
 import snake.Direction;
 import snake.MusicPlayer;
 import snake.Snake;
@@ -18,33 +23,43 @@ import snake.games.MultiPlayerGame;
 import snake.games.levels.Level;
 import snake.games.levels.NoWallsLevel;
 import snake.games.levels.WalledLevel;
+import snake.gui.InputScreen;
+import snake.gui.StyleUtility;
 import snake.squares.ColouredSquare;
 import snake.squares.Square;
 
 
 //suppress warning for enhanced for-loop
 @SuppressWarnings("PMD.DataflowAnomalyAnalysis")
-public class GameScreen extends InputScreen implements Screen {
-    private transient Game game;
+public class SinglePlayerGameScreen extends InputScreen implements Screen {
+    transient Game game;
+    transient Snake player1;
 
-    private transient ArrayList<Integer> keys1;
-    private transient ArrayList<Integer> keys2;
+    transient ArrayList<Integer> keys1;
+
+    static final transient float FRAMETIME = 1 / 6f;
+    transient float currentFrameTime = FRAMETIME;
+
+    transient Direction lastPressed;
 
     /**
      * Initializes the snake.Gui.GameScreen.
      *
      * @param game current instance of the game.
      */
-    public GameScreen(Game game) {
+    public SinglePlayerGameScreen(Game game) {
         super(game.getLauncher());
         this.game = game;
 
-        getLauncherClass().setForegroundFps(6);
-
+        this.player1 = game.getPlayer1();
         this.keys1 = createKeys1();
-        this.keys2 = createKeys2();
     }
 
+    /**
+     * Creates the input keys for player1.
+     *
+     * @return arraylist containing these keys.
+     */
     private ArrayList<Integer> createKeys1() {
         ArrayList<Integer> result = new ArrayList<>();
 
@@ -52,17 +67,6 @@ public class GameScreen extends InputScreen implements Screen {
         result.add(Input.Keys.S);
         result.add(Input.Keys.D);
         result.add(Input.Keys.A);
-
-        return result;
-    }
-
-    private ArrayList<Integer> createKeys2() {
-        ArrayList<Integer> result = new ArrayList<>();
-
-        result.add(Input.Keys.UP);
-        result.add(Input.Keys.DOWN);
-        result.add(Input.Keys.RIGHT);
-        result.add(Input.Keys.LEFT);
 
         return result;
     }
@@ -84,30 +88,127 @@ public class GameScreen extends InputScreen implements Screen {
      */
     @Override
     public void render(float delta) {
+        currentFrameTime -= delta;
+
         //Set the background
         Gdx.gl.glEnable(GL20.GL_BLEND);
         Gdx.gl.glClearColor(1, 1, 1, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.ESCAPE)
-                || Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
+        if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             game.setPaused();
         }
-        //Move the snake
-        move(game.getPlayer1(), keys1);
+
+        if (!game.isPaused()) {
+            game.decreaseTime(delta);
+        }
+
+        checkLastPressed();
+
+        if (currentFrameTime < 0) {
+            currentFrameTime = FRAMETIME;
+
+            move();
+        }
 
         //check whether the game is over (prevents overlapping death screens)
         if (game.getGameIsOver()) {
             return;
         }
 
-        if (game instanceof MultiPlayerGame) {
-            move(((MultiPlayerGame) game).getPlayer2(), keys2);
-            ((MultiPlayerGame) game).checkSnakeCollision();
-        }
-
         //Renders the squares of the board and snake
         renderSquares();
+    }
+
+    /**
+     * Updates the lastPressed key.
+     */
+    public void checkLastPressed() {
+        Direction newPressed = checkQueue(game.getPlayer1(), keys1);
+        this.lastPressed = newPressed != null ? newPressed : lastPressed;
+    }
+
+    /**
+     * Calls the method to move the player (override by subclass).
+     */
+    public void move() {
+        for (int i = 0; i < player1.getNumberOfMoves(); i++) {
+            move(player1, this.lastPressed);
+        }
+    }
+
+    /**
+     * Actually moves the player based on the last key pressed.
+     *
+     * @param player      player to be moved.
+     * @param lastPressed direction associated with the key last pressed.
+     */
+    public void move(Snake player, Direction lastPressed) {
+        Direction max = lastPressed != null ? lastPressed : player.getDirection();
+        player.setDirection(max);
+
+        switch (max) {
+            case DOWN:
+                game.moveDown(player);
+                break;
+            case LEFT:
+                game.moveLeft(player);
+                break;
+            case RIGHT:
+                game.moveRight(player);
+                break;
+            default:
+                game.moveUp(player);
+                break;
+        }
+    }
+
+    /**
+     * Adds the appropriate value to the hashmap.
+     *
+     * @param snake snake which is to be moved
+     * @param keys  keys corresponding to up, down, right, left in that order.
+     */
+    public Direction checkQueue(Snake snake, List<Integer> keys) {
+        Direction beingPressed = checkBeingPressed(keys, snake.getDirection());
+
+        return beingPressed == null ? checkJustPressed(keys, snake.getDirection()) : beingPressed;
+    }
+
+    /**
+     * Checks whether the WASD-key is being pressed.
+     *
+     * @return Direction which is being pressed
+     */
+    private Direction checkBeingPressed(List<Integer> keys, Direction direction) {
+        if (Gdx.input.isKeyPressed(keys.get(0)) && direction != Direction.DOWN) {
+            return Direction.UP;
+        } else if (Gdx.input.isKeyPressed(keys.get(1)) && direction != Direction.UP) {
+            return Direction.DOWN;
+        } else if (Gdx.input.isKeyPressed(keys.get(2)) && direction != Direction.LEFT) {
+            return Direction.RIGHT;
+        } else if (Gdx.input.isKeyPressed(keys.get(3)) && direction != Direction.RIGHT) {
+            return Direction.LEFT;
+        }
+        return null;
+    }
+
+    /**
+     * Checks whether a key was pressed since the previous frame.
+     *
+     * @return Direction which was pressed
+     */
+    private Direction checkJustPressed(List<Integer> keys, Direction direction) {
+        if (Gdx.input.isKeyJustPressed(keys.get(0)) && direction != Direction.DOWN) {
+            return Direction.UP;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(1)) && direction != Direction.UP) {
+            return Direction.DOWN;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(2)) && direction != Direction.LEFT) {
+            return Direction.RIGHT;
+        } else if (Gdx.input.isKeyJustPressed(keys.get(3)) && direction != Direction.RIGHT) {
+            return Direction.LEFT;
+        }
+        return null;
     }
 
     /**
@@ -184,94 +285,20 @@ public class GameScreen extends InputScreen implements Screen {
 
         batch.begin();
         Square snackSquare = game.getSnack();
-        batch.draw(StyleUtility.getSnack(), snackSquare.getXvalue(),
-                snackSquare.getYvalue(), snackSquare.getWidth(), snackSquare.getHeight());
+        if (snackSquare != null) {
+            batch.draw(StyleUtility.getSnack(), snackSquare.getXvalue(),
+                    snackSquare.getYvalue(), snackSquare.getWidth(), snackSquare.getHeight());
+        }
+
+        Square powerUpSquare = game.getPowerUpSquare();
+        if (game.getPowerUp() != null && powerUpSquare != null && !game.isActive()) {
+            batch.draw(StyleUtility.getPowerUpTexture(game.getPowerUp()), powerUpSquare.getXvalue(),
+                    powerUpSquare.getYvalue(), powerUpSquare.getWidth(), powerUpSquare.getHeight());
+        }
 
         for (Actor current : createSecondaryActors()) {
             current.draw(batch, 1);
         }
         batch.end();
-    }
-
-    /**
-     * Moves the snake in the appropriate direction.
-     *
-     * @param snake snake which is to be moved
-     * @param keys  keys corresponding to up, down, right, left in that order.
-     */
-    public void move(Snake snake, List<Integer> keys) {
-        //Check the user input and move appropriately
-        // and set the direction (still needs to be cleaned up).
-        if (!checkBeingPressed(keys, snake.getDirection(), snake)) {
-            if (!checkJustPressed(keys, snake.getDirection(), snake)) {
-                //If there is no user-input keep moving in the previous direction.
-                switch (snake.getDirection()) {
-                    case RIGHT:
-                        game.moveRight(snake);
-                        break;
-                    case DOWN:
-                        game.moveDown(snake);
-                        break;
-                    case LEFT:
-                        game.moveLeft(snake);
-                        break;
-                    default:
-                        game.moveUp(snake);
-                        break;
-                }
-            }
-        }
-    }
-
-    /**
-     * Checks whether the WASD-key is being pressed.
-     *
-     * @return boolean indicating whether a key is being pressed.
-     */
-    private boolean checkBeingPressed(List<Integer> keys, Direction direction, Snake snake) {
-        if (Gdx.input.isKeyPressed(keys.get(0)) && direction != Direction.DOWN) {
-            game.moveUp(snake);
-            snake.setDirection(Direction.UP);
-            return true;
-        } else if (Gdx.input.isKeyPressed(keys.get(1)) && direction != Direction.UP) {
-            game.moveDown(snake);
-            snake.setDirection(Direction.DOWN);
-            return true;
-        } else if (Gdx.input.isKeyPressed(keys.get(2)) && direction != Direction.LEFT) {
-            game.moveRight(snake);
-            snake.setDirection(Direction.RIGHT);
-            return true;
-        } else if (Gdx.input.isKeyPressed(keys.get(3)) && direction != Direction.RIGHT) {
-            game.moveLeft(snake);
-            snake.setDirection(Direction.LEFT);
-            return true;
-        }
-        return false;
-    }
-
-    /**
-     * Checks whether a key was pressed since the previous frame.
-     *
-     * @return boolean indicating whether a key was pressed.
-     */
-    private boolean checkJustPressed(List<Integer> keys, Direction direction, Snake snake) {
-        if (Gdx.input.isKeyJustPressed(keys.get(0)) && direction != Direction.DOWN) {
-            game.moveUp(snake);
-            snake.setDirection(Direction.UP);
-            return true;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(1)) && direction != Direction.UP) {
-            game.moveDown(snake);
-            snake.setDirection(Direction.DOWN);
-            return true;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(2)) && direction != Direction.LEFT) {
-            game.moveRight(snake);
-            snake.setDirection(Direction.RIGHT);
-            return true;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(3)) && direction != Direction.RIGHT) {
-            game.moveLeft(snake);
-            snake.setDirection(Direction.LEFT);
-            return true;
-        }
-        return false;
     }
 }
