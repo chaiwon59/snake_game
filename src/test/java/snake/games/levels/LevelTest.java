@@ -9,6 +9,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -26,6 +27,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import snake.Dao;
+import snake.Player;
 import snake.Snake;
 import snake.User;
 import snake.games.Game;
@@ -53,6 +55,8 @@ public abstract class LevelTest {
     transient SnackBuilder builder;
 
     transient Preferences prefs;
+
+    transient Player player;
 
     public abstract Level makeLevel(Game game, LauncherClass launcherClass, int stepsize);
 
@@ -88,6 +92,7 @@ public abstract class LevelTest {
 
         this.game = mock(Game.class);
         this.launcherClass = mock(LauncherClass.class);
+        this.player = mock(Player.class);
         User user = new User();
         doReturn(width).when(launcherClass).getWidth();
         doReturn(height).when(launcherClass).getHeight();
@@ -101,7 +106,7 @@ public abstract class LevelTest {
         Square tail = new Square(width / 2 - stepsize, height / 2, stepsize - 2,
                 stepsize - 2);
         List<Square> body = new ArrayList<>(Arrays.asList(head, tail));
-        this.snake = new Snake(head, tail, body);
+        this.snake = spy(new Snake(head, tail, body));
         this.dao = mock(Dao.class);
 
 
@@ -114,6 +119,7 @@ public abstract class LevelTest {
             builder.createSnack();
             return null;
         }).when(game).createSnack();
+        doReturn(player).when(snake).getPlayer();
     }
 
     @Test
@@ -260,7 +266,7 @@ public abstract class LevelTest {
 
         assertEquals(prevTail, snake.getTail());
         assertEquals(prevSize + 1, snake.getBody().size());
-        verify(game, times(1)).updateScore(any(Snake.class));
+        verify(snake, times(1)).ateSnack();
     }
 
     @Test
@@ -334,7 +340,7 @@ public abstract class LevelTest {
 
         level.moveUp(snake);
 
-        verify(powerUp, times(1)).apply(snake);
+        verify(powerUp, times(1)).apply(player);
         verify(game, times(1)).resetNextPowerUpTime();
     }
 }

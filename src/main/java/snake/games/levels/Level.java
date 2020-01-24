@@ -97,7 +97,6 @@ public abstract class Level {
         if (paused) {
             return;
         }
-
         if (game.getSnack() == null) {
             game.createSnack();
         }
@@ -108,22 +107,40 @@ public abstract class Level {
                 died = true;
             }
 
-            if (game.getSnackSquare().equals(snake.getHead())) {
-                snake.ateSnack();
-                MusicPlayer.playSnackMusic();
-                game.updateScore(snake);
-                game.createSnack();
-            }
-            if (game.getPowerUp() != null
-                    && !game.isActive() && game.getPowerUpSquare().equals(snake.getHead())) {
-                game.getPowerUp().apply(snake);
-                MusicPlayer.playPowerUpMusic(game.getPowerUp());
-                game.resetNextPowerUpTime();
-            }
+            //check whether a snack was eaten
+            checkSnack(snake);
+
+            //check whether a powerup was eaten
+            eatPowerup(snake);
         }
 
         if (died) {
             game.gameOver(snake);
+        }
+    }
+
+    /**
+     * Checks whether the snake has eaten the snack.
+     * @param snake snake to be checked for.
+     */
+    private void checkSnack(Snake snake) {
+        if (game.getSnackSquare().equals(snake.getHead())) {
+            snake.ateSnack();
+            MusicPlayer.playSnackMusic();
+            game.createSnack();
+        }
+    }
+
+    /**
+     * Checks whether the snake has eaten a powerup.
+     * @param snake snake to be checked for.
+     */
+    private void eatPowerup(Snake snake) {
+        if (game.getPowerUp() != null
+                && !game.isActive() && game.getPowerUpSquare().equals(snake.getHead())) {
+            game.getPowerUp().apply(snake.getPlayer());
+            MusicPlayer.playPowerUpMusic(game.getPowerUp());
+            game.resetNextPowerUpTime();
         }
     }
 

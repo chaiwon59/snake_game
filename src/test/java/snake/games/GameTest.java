@@ -124,10 +124,6 @@ public abstract class GameTest {
     @Test
     public void testGetScore1() {
         assertEquals(0, game.getScore1());
-
-        game.updateScore(snake);
-
-        verify(snake, times(1)).increaseScore();
     }
 
     @Test

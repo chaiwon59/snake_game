@@ -2,6 +2,7 @@ package snake;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import snake.games.powerups.PowerUp;
 import snake.games.powerups.ScoreIncreasePowerUp;
 import snake.games.powerups.SpeedPowerUp;
@@ -19,10 +20,8 @@ public final class MusicPlayer {
      */
     public static void playSnackMusic() {
         new Thread(() -> {
-            Music snackSound = StyleUtility.getSnackSound();
-            if (snackSound.isPlaying()) {
-                snackSound.stop();
-            }
+            Sound snackSound = StyleUtility.getSnackSound();
+            snackSound.stop();
             snackSound.play();
         }).start();
     }
@@ -45,10 +44,8 @@ public final class MusicPlayer {
      */
     public static void playMultiplierMusic() {
         new Thread(() -> {
-            Music multiplierSound = StyleUtility.getMultiplierSound();
-            if (multiplierSound.isPlaying()) {
-                multiplierSound.stop();
-            }
+            Sound multiplierSound = StyleUtility.getMultiplierSound();
+            multiplierSound.stop();
             multiplierSound.play();
         }).start();
     }
@@ -58,10 +55,8 @@ public final class MusicPlayer {
      */
     public static void playSpeedMusic() {
         new Thread(() -> {
-            Music speedUpSound = StyleUtility.getSpeedupSound();
-            if (speedUpSound.isPlaying()) {
-                speedUpSound.stop();
-            }
+            Sound speedUpSound = StyleUtility.getSpeedupSound();
+            speedUpSound.stop();
             speedUpSound.play();
         }).start();
     }

@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import snake.Player;
 import snake.Snake;
 import snake.games.builders.PowerUpBuilder;
 import snake.squares.Square;
@@ -21,6 +22,7 @@ public abstract class PowerUpTest {
     transient Square rendered;
     transient Square actual;
     transient PowerUpBuilder builder;
+    transient Player player;
 
     /**
      * Sets up the test environment.
@@ -30,6 +32,7 @@ public abstract class PowerUpTest {
         this.rendered = mock(Square.class);
         this.actual = mock(Square.class);
         this.builder = mock(PowerUpBuilder.class);
+        this.player = mock(Player.class);
 
         this.powerUp = spy(createPowerUp(builder, rendered, actual));
     }
@@ -67,12 +70,11 @@ public abstract class PowerUpTest {
 
     @Test
     public void testApply() {
-        Snake snake = mock(Snake.class);
         assertNull(powerUp.snake);
 
-        powerUp.apply(snake);
+        powerUp.apply(player);
 
-        assertEquals(snake, powerUp.snake);
+        assertEquals(player, powerUp.snake);
         verify(powerUp, times(1)).setActive();
         verify(builder, times(1)).addActivePowerUp(powerUp);
     }
@@ -83,17 +85,16 @@ public abstract class PowerUpTest {
 
         assertFalse(powerUp.decreaseTime(delta));
         assertTrue(powerUp.timeRemaining > 0);
-        verify(powerUp, times(0)).undo(any(Snake.class));
+        verify(powerUp, times(0)).undo(any(Player.class));
     }
 
     @Test
     public void testDecreaseTimeLowerThanZero() {
         float delta = powerUp.timeRemaining + 1;
-        Snake snake = mock(Snake.class);
-        powerUp.snake = snake;
+        powerUp.snake = player;
 
         assertTrue(powerUp.decreaseTime(delta));
         assertTrue(powerUp.timeRemaining <= 0);
-        verify(powerUp, times(1)).undo(snake);
+        verify(powerUp, times(1)).undo(player);
     }
 }
