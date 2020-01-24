@@ -23,6 +23,7 @@ import java.util.List;
 public abstract class InputScreen implements Screen {
     private transient LauncherClass launcherClass;
     private transient Stage stage;
+    private transient GuiCreator creator;
 
     /**
      * Creates the snake.Gui.LoginScreen.
@@ -31,6 +32,7 @@ public abstract class InputScreen implements Screen {
      */
     public InputScreen(LauncherClass launcherClass) {
         this.launcherClass = launcherClass;
+        this.creator = new GuiCreator(launcherClass);
     }
 
     /**
@@ -61,18 +63,7 @@ public abstract class InputScreen implements Screen {
      * @return new label with these attributes
      */
     public Label createLabel(String text, Float x, float y) {
-        Label label = new Label(text,
-                StyleUtility.getSkin().get("optional", Label.LabelStyle.class));
-        label.setAlignment(Align.center);
-        label.setFontScale(1.5f);
-
-        float positionX = x == null ? (getLauncherClass().getWidth() - label.getWidth()) / 2f : x;
-        label.setPosition(positionX, y);
-
-        label.setBounds(x == null
-                        ? (getLauncherClass().getWidth() - label.getWidth() * 1.5f) / 2f : x,
-                y, label.getWidth() * 1.5f, label.getHeight() * 1.5f);
-        return label;
+        return creator.createLabel(text, x, y);
     }
 
     /**
@@ -84,9 +75,7 @@ public abstract class InputScreen implements Screen {
      * @return new label with these attributes + listener
      */
     public Label createLabelWithOnClick(String text, float y, ClickListener listener) {
-        Label label = createLabel(text, null, y);
-        label.addListener(listener);
-        return label;
+        return creator.createLabelWithOnClick(text, y, listener);
     }
 
     /**
@@ -100,46 +89,7 @@ public abstract class InputScreen implements Screen {
      * @return button with the given attributes
      */
     public TextButton createButton(String text, Float x, float y, ClickListener listener) {
-        TextButton button = new TextButton(text, getSkin());
-
-        //default x, places it in the middle
-        if (x == null) {
-            x = (getLauncherClass().getWidth() - button.getWidth()) / 2f;
-        }
-
-        button.setPosition(x, y);
-        button.addListener(listener);
-        return button;
-    }
-
-    /**
-     * Creates the username input field.
-     *
-     * @return textfield of the username
-     */
-    public TextField createUsernameField() {
-        TextField username = new TextField("", getSkin());
-        username.setWidth(300);
-        username.setHeight(25f);
-        username.setPosition(launcherClass.getWidth() / 3.33f, launcherClass.getHeight() / 1.455f);
-        username.setMessageText("Username");
-        return username;
-    }
-
-    /**
-     * Creates the password input field.
-     *
-     * @return textfield of the password
-     */
-    public TextField createPasswordField() {
-        TextField password = new TextField("", getSkin());
-        password.setPasswordMode(true);
-        password.setHeight(25f);
-        password.setPasswordCharacter('*');
-        password.setWidth(300);
-        password.setPosition(launcherClass.getWidth() / 3.33f, launcherClass.getHeight() / 1.6f);
-        password.setMessageText("Password");
-        return password;
+        return creator.createButton(text, x, y, listener);
     }
 
     /**
@@ -147,15 +97,7 @@ public abstract class InputScreen implements Screen {
      * @param text text of the error message
      */
     public void createDialog(String text, String title) {
-        Dialog dialog = new Dialog(title, getSkin(), "dialog");
-        dialog.padTop(35);
-
-        Label label = new Label("\n" + text + "\n",
-                StyleUtility.getSkin().get("optional", Label.LabelStyle.class));
-        dialog.text(label);
-        dialog.button("Confirm", true);
-
-        dialog.show(stage);
+        creator.createDialog(text, title, stage);
     }
 
     public LauncherClass getLauncherClass() {

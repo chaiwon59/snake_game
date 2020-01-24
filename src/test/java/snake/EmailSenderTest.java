@@ -88,7 +88,6 @@ public class EmailSenderTest {
         verify(dao, times(1)).updatePassword(
                 any(String.class), any(String.class), any(boolean.class));
         verify(sender, times(1)).send(any(MimeMessage.class));
-        verify(senderClass, times(1)).createMessage();
     }
 
     @Test

@@ -2,6 +2,7 @@ package snake;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -258,5 +259,14 @@ public class DaoTest {
         verify(query, times(1)).setString(1, username);
         verify(query, times(1)).executeQuery();
         verify(result, times(1)).next();
+    }
+
+    @Test
+    public void testDeleteUser() throws SQLException {
+        dao.deleteUser("username");
+
+        verify(conn).prepareStatement(any(String.class));
+        verify(query).setString(1, "username");
+        verify(query).executeUpdate();
     }
 }

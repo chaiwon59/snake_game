@@ -44,15 +44,6 @@ public class SinglePlayerGameTest extends GameTest {
     }
 
     @Test
-    public void updateScore() {
-        assertEquals(0, game.getScore1());
-
-        game.updateScore(snake);
-
-        verify(snake, times(1)).increaseScore();
-    }
-
-    @Test
     public void testCreateSnack() {
         builder.createSnack();
         verify(builder, times(1)).createSnack();

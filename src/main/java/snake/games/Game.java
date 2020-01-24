@@ -59,15 +59,6 @@ public abstract class Game {
     public abstract List<Square> getForbiddenSquares();
 
     /**
-     * Updates the score corresponding to the right snake.
-     *
-     * @param snake player for which the score is updated
-     */
-    public void updateScore(Snake snake) {
-        snake.increaseScore();
-    }
-
-    /**
      * Ends the game and sets the appropriate death screen.
      *
      * @param losingSnake snake which lost
@@ -152,5 +143,9 @@ public abstract class Game {
 
     public void resetNextPowerUpTime() {
         powerUpBuilder.resetNextPowerUpTime();
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
     }
 }

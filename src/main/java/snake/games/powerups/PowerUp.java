@@ -1,5 +1,6 @@
 package snake.games.powerups;
 
+import snake.Player;
 import snake.Snake;
 import snake.games.builders.PowerUpBuilder;
 import snake.squares.Square;
@@ -10,7 +11,7 @@ public abstract class PowerUp {
     transient Square rendered;
     transient Square actual;
     transient boolean active;
-    transient Snake snake;
+    transient Player snake;
 
     /**
      * Constructor of the power up class.
@@ -37,7 +38,7 @@ public abstract class PowerUp {
     /**
      * Applies the effect of the power up.
      */
-    public void apply(Snake snake) {
+    public void apply(Player snake) {
         this.snake = snake;
         setActive();
         builder.addActivePowerUp(this);
@@ -46,7 +47,7 @@ public abstract class PowerUp {
     /**
      * Undos the effect of the power up.
      */
-    public abstract void undo(Snake snake);
+    public abstract void undo(Player snake);
 
     /**
      * Decreases the remaining time of the power up and executes the undo when necessary.

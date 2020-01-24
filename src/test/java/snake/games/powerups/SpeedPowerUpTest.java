@@ -31,23 +31,21 @@ public class SpeedPowerUpTest extends PowerUpTest {
     @Test
     public void testApply() {
         final int numberOfMoves = 1;
-        Snake snake = mock(Snake.class);
-        doReturn(numberOfMoves).when(snake).getNumberOfMoves();
+        doReturn(numberOfMoves).when(player).getNumberOfMoves();
 
-        powerUp.apply(snake);
+        powerUp.apply(player);
 
-        verify(snake, times(1)).setNumberOfMoves(2 * numberOfMoves);
+        verify(player, times(1)).setNumberOfMoves(2 * numberOfMoves);
         verify(powerUp, times(1)).setActive();
     }
 
     @Test
     public void testUndo() {
         final int numberOfMoves = 2;
-        Snake snake = mock(Snake.class);
-        doReturn(numberOfMoves).when(snake).getNumberOfMoves();
+        doReturn(numberOfMoves).when(player).getNumberOfMoves();
 
-        powerUp.undo(snake);
+        powerUp.undo(player);
 
-        verify(snake, times(1)).setNumberOfMoves(numberOfMoves / 2);
+        verify(player, times(1)).setNumberOfMoves(numberOfMoves / 2);
     }
 }

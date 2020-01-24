@@ -1,5 +1,6 @@
 package snake.games.powerups;
 
+import snake.Player;
 import snake.Snake;
 import snake.games.builders.PowerUpBuilder;
 import snake.squares.Square;
@@ -11,13 +12,13 @@ public class SpeedPowerUp extends PowerUp {
     }
 
     @Override
-    public void apply(Snake snake) {
+    public void apply(Player snake) {
         super.apply(snake);
         snake.setNumberOfMoves(snake.getNumberOfMoves() * 2);
     }
 
     @Override
-    public void undo(Snake snake) {
+    public void undo(Player snake) {
         snake.setNumberOfMoves(snake.getNumberOfMoves() / 2);
     }
 }

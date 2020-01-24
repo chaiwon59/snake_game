@@ -24,11 +24,7 @@ public class Snake {
 
     private transient Direction direction = Direction.UP;
 
-    private transient int score;
-
-    private transient int scoreIncrease;
-
-    private transient int numberOfMoves = 1;
+    private transient Player player;
 
     /**
      * Creates a snake with the given attributes.
@@ -39,8 +35,7 @@ public class Snake {
     public Snake(int stepSize, float size, int startInt) {
         this.startInt = startInt;
         createSnake(stepSize, size, startInt);
-        this.score = 0;
-        this.scoreIncrease = 10;
+        this.player = new Player();
     }
 
     /**
@@ -54,9 +49,7 @@ public class Snake {
         this.head = head;
         this.tail = tail;
         this.body = body;
-
-        this.score = 0;
-        this.scoreIncrease = 10;
+        this.player = new Player();
     }
 
     /**
@@ -110,18 +103,7 @@ public class Snake {
     public void ateSnack() {
         body.add(0, prevTail);
         tail = prevTail;
-    }
-
-    public void increaseScore() {
-        this.score += scoreIncrease;
-    }
-
-    public void setScoreIncrease(int scoreIncrease) {
-        this.scoreIncrease = scoreIncrease;
-    }
-
-    public int getScoreIncrease() {
-        return scoreIncrease;
+        player.increaseScore();
     }
 
     public Square getHead() {
@@ -157,14 +139,10 @@ public class Snake {
     }
 
     public int getScore() {
-        return this.score;
+        return player.getScore();
     }
 
-    public int getNumberOfMoves() {
-        return numberOfMoves;
-    }
-
-    public void setNumberOfMoves(int newNumber) {
-        this.numberOfMoves = newNumber;
+    public Player getPlayer() {
+        return this.player;
     }
 }

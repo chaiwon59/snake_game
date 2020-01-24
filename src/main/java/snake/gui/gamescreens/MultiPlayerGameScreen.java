@@ -11,7 +11,6 @@ import snake.games.MultiPlayerGame;
 
 public class MultiPlayerGameScreen extends SinglePlayerGameScreen {
     transient Snake player2;
-    transient ArrayList<Integer> keys2;
     transient Direction lastPressed2;
 
     /**
@@ -22,17 +21,19 @@ public class MultiPlayerGameScreen extends SinglePlayerGameScreen {
     public MultiPlayerGameScreen(Game game) {
         super(game);
 
-        this.keys2 = createKeys2();
         this.player2 = ((MultiPlayerGame) game).getPlayer2();
     }
 
     @Override
     public void move() {
-        for (int i = 0; i < player1.getNumberOfMoves(); i++) {
+        for (int i = 0; i < player1.getPlayer().getNumberOfMoves(); i++) {
             move(player1, this.lastPressed);
             ((MultiPlayerGame) game).checkSnakeCollision();
         }
-        for (int i = 0; i < player2.getNumberOfMoves(); i++) {
+        if(game.getGameIsOver()) {
+            return;
+        }
+        for (int i = 0; i < player2.getPlayer().getNumberOfMoves(); i++) {
             move(player2, lastPressed2);
             ((MultiPlayerGame) game).checkSnakeCollision();
         }
@@ -41,18 +42,7 @@ public class MultiPlayerGameScreen extends SinglePlayerGameScreen {
     @Override
     public void checkLastPressed() {
         super.checkLastPressed();
-        Direction newPressed = checkQueue(player2, keys2);
+        Direction newPressed = reader.checkQueue(player2, reader.getKeys2());
         lastPressed2 = newPressed != null ? newPressed : lastPressed2;
-    }
-
-    private ArrayList<Integer> createKeys2() {
-        ArrayList<Integer> result = new ArrayList<>();
-
-        result.add(Input.Keys.UP);
-        result.add(Input.Keys.DOWN);
-        result.add(Input.Keys.RIGHT);
-        result.add(Input.Keys.LEFT);
-
-        return result;
     }
 }

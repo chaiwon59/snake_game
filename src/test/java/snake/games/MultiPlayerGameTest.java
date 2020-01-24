@@ -46,28 +46,6 @@ public class MultiPlayerGameTest extends GameTest {
     }
 
     @Test
-    public void testUpdateScorePlayer1() {
-        assertEquals(0, game.getScore1());
-        assertEquals(0, game.getScore2());
-
-        game.updateScore(snake);
-
-        verify(snake, times(1)).increaseScore();
-        verify(snake2, times(0)).increaseScore();
-    }
-
-    @Test
-    public void testUpdateScorePlayer2() {
-        assertEquals(0, game.getScore1());
-        assertEquals(0, game.getScore2());
-
-        game.updateScore(snake2);
-
-        verify(snake, times(0)).increaseScore();
-        verify(snake2, times(1)).increaseScore();
-    }
-
-    @Test
     public void testCheckSnakeCollision2CollidesWith1() {
         Square square = new Square(0, 0, 0, 0);
         doReturn(new ArrayList<>(Arrays.asList(square))).when(snake).getBody();

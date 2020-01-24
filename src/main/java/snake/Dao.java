@@ -283,4 +283,19 @@ public class Dao {
             }
         }
     }
+
+    /**
+     * Deletes the user in the database with the given username.
+     * @param username username of the user to be deleted.
+     */
+    public void deleteUser(String username) {
+        try {
+            PreparedStatement query = conn.prepareStatement(
+                    "DELETE FROM user WHERE username=?");
+            query.setString(1, username);
+            query.executeUpdate();
+        } catch (SQLException e) {
+            Gdx.app.exit();
+        }
+    }
 }

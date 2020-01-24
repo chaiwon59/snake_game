@@ -34,23 +34,21 @@ public class ScoreIncreasePowerUpTest extends PowerUpTest {
     @Test
     public void testApply() {
         final int scoreIncrease = 10;
-        Snake snake = mock(Snake.class);
-        doReturn(scoreIncrease).when(snake).getScoreIncrease();
+        doReturn(scoreIncrease).when(player).getScoreIncrease();
 
-        powerUp.apply(snake);
+        powerUp.apply(player);
 
-        verify(snake, times(1)).setScoreIncrease(2 * scoreIncrease);
+        verify(player, times(1)).setScoreIncrease(2 * scoreIncrease);
         verify(powerUp, times(1)).setActive();
     }
 
     @Test
     public void testUndo() {
         final int scoreIncrease = 20;
-        Snake snake = mock(Snake.class);
-        doReturn(scoreIncrease).when(snake).getScoreIncrease();
+        doReturn(scoreIncrease).when(player).getScoreIncrease();
 
-        powerUp.undo(snake);
+        powerUp.undo(player);
 
-        verify(snake, times(1)).setScoreIncrease(scoreIncrease / 2);
+        verify(player, times(1)).setScoreIncrease(scoreIncrease / 2);
     }
 }

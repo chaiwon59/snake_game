@@ -2,6 +2,7 @@ package snake.gui;
 
 import snake.Dao;
 import snake.User;
+import snake.gui.authentication.LoginScreen;
 
 public abstract class LauncherClass extends com.badlogic.gdx.Game {
 

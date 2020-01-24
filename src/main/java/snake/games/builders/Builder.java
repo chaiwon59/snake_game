@@ -40,14 +40,17 @@ public abstract class Builder {
         this.squareSize = squareSize;
     }
 
+    //New method for refactored create() method
+    public int calculate() {
+        return (int) (launcherClass.getWidth() - stepSize) / stepSize;
+    }
+
     /**
      * Creates a snack which is not inside the given list.
      */
     public Pair create() {
-        return create(
-                random.nextInt(((int) (launcherClass.getWidth() - stepSize) / stepSize)),
-                random.nextInt(((int) (launcherClass.getWidth() - stepSize) / stepSize)),
-                game.getForbiddenSquares());
+        return create(random.nextInt(calculate()),
+                random.nextInt(calculate()), game.getForbiddenSquares());
     }
 
     /**
@@ -58,11 +61,20 @@ public abstract class Builder {
      * @param forbiddenSquares list of forbidden squares
      */
     public Pair create(int random1, int random2, List<Square> forbiddenSquares) {
-        Pair result = new Pair(new Square(random1 * stepSize + stepSize / 5,
-                random2 * stepSize + stepSize / 5,
-                3 * stepSize / 5, 3 * stepSize / 5),
-                new ColouredSquare(random1 * stepSize, random2 * stepSize,
-                        squareSize, squareSize, new Color(0, 0, 0, 1)));
+        Pair result = new Pair(newSquare(random1, random2),
+                newColouredSquare(random1, random2));
         return forbiddenSquares.contains(result.actual) ? create() : result;
+    }
+
+    //New method for refactored create(int, int, List)
+    public Square newSquare(int a, int b) {
+        return new Square(a * stepSize + stepSize / 5,
+                b * stepSize + stepSize / 5, 3 * stepSize / 5, 3 * stepSize / 5);
+    }
+
+    //New method for refactored create(int, int, List)
+    public ColouredSquare newColouredSquare(int a, int b) {
+        return new ColouredSquare(a * stepSize, b * stepSize,
+                squareSize, squareSize, new Color(0, 0, 0, 1));
     }
 }

@@ -106,18 +106,18 @@ public class SnakeTest {
     public void testIncreaseScore() {
         assertEquals(0, snake.getScore());
 
-        snake.increaseScore();
+        snake.getPlayer().increaseScore();
 
         assertEquals(10, snake.getScore());
     }
 
     @Test
     public void testSetScoreIncrease() {
-        assertEquals(10, snake.getScoreIncrease());
+        assertEquals(10, snake.getPlayer().getScoreIncrease());
 
-        snake.setScoreIncrease(20);
+        snake.getPlayer().setScoreIncrease(20);
 
-        assertEquals(20, snake.getScoreIncrease());
+        assertEquals(20, snake.getPlayer().getScoreIncrease());
     }
 
     @Test

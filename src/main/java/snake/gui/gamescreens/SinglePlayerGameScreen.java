@@ -8,21 +8,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.springframework.security.core.parameters.P;
 import snake.Direction;
 import snake.MusicPlayer;
 import snake.Snake;
 import snake.games.Game;
 import snake.games.MultiPlayerGame;
-import snake.games.levels.Level;
-import snake.games.levels.NoWallsLevel;
-import snake.games.levels.WalledLevel;
 import snake.gui.InputScreen;
 import snake.gui.StyleUtility;
 import snake.squares.ColouredSquare;
@@ -35,12 +27,12 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
     transient Game game;
     transient Snake player1;
 
-    transient ArrayList<Integer> keys1;
-
     static final transient float FRAMETIME = 1 / 6f;
     transient float currentFrameTime = FRAMETIME;
 
     transient Direction lastPressed;
+
+    transient InputReader reader;
 
     /**
      * Initializes the snake.Gui.GameScreen.
@@ -52,25 +44,8 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
         this.game = game;
 
         this.player1 = game.getPlayer1();
-        this.keys1 = createKeys1();
+        this.reader = new InputReader();
     }
-
-    /**
-     * Creates the input keys for player1.
-     *
-     * @return arraylist containing these keys.
-     */
-    private ArrayList<Integer> createKeys1() {
-        ArrayList<Integer> result = new ArrayList<>();
-
-        result.add(Input.Keys.W);
-        result.add(Input.Keys.S);
-        result.add(Input.Keys.D);
-        result.add(Input.Keys.A);
-
-        return result;
-    }
-
 
     /**
      * Turns off the menu music and starts playing the ingame music.
@@ -124,7 +99,7 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
      * Updates the lastPressed key.
      */
     public void checkLastPressed() {
-        Direction newPressed = checkQueue(game.getPlayer1(), keys1);
+        Direction newPressed = reader.checkQueue(game.getPlayer1(), reader.getKeys1());
         this.lastPressed = newPressed != null ? newPressed : lastPressed;
     }
 
@@ -132,7 +107,7 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
      * Calls the method to move the player (override by subclass).
      */
     public void move() {
-        for (int i = 0; i < player1.getNumberOfMoves(); i++) {
+        for (int i = 0; i < player1.getPlayer().getNumberOfMoves(); i++) {
             move(player1, this.lastPressed);
         }
     }
@@ -147,68 +122,7 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
         Direction max = lastPressed != null ? lastPressed : player.getDirection();
         player.setDirection(max);
 
-        switch (max) {
-            case DOWN:
-                game.moveDown(player);
-                break;
-            case LEFT:
-                game.moveLeft(player);
-                break;
-            case RIGHT:
-                game.moveRight(player);
-                break;
-            default:
-                game.moveUp(player);
-                break;
-        }
-    }
-
-    /**
-     * Adds the appropriate value to the hashmap.
-     *
-     * @param snake snake which is to be moved
-     * @param keys  keys corresponding to up, down, right, left in that order.
-     */
-    public Direction checkQueue(Snake snake, List<Integer> keys) {
-        Direction beingPressed = checkBeingPressed(keys, snake.getDirection());
-
-        return beingPressed == null ? checkJustPressed(keys, snake.getDirection()) : beingPressed;
-    }
-
-    /**
-     * Checks whether the WASD-key is being pressed.
-     *
-     * @return Direction which is being pressed
-     */
-    private Direction checkBeingPressed(List<Integer> keys, Direction direction) {
-        if (Gdx.input.isKeyPressed(keys.get(0)) && direction != Direction.DOWN) {
-            return Direction.UP;
-        } else if (Gdx.input.isKeyPressed(keys.get(1)) && direction != Direction.UP) {
-            return Direction.DOWN;
-        } else if (Gdx.input.isKeyPressed(keys.get(2)) && direction != Direction.LEFT) {
-            return Direction.RIGHT;
-        } else if (Gdx.input.isKeyPressed(keys.get(3)) && direction != Direction.RIGHT) {
-            return Direction.LEFT;
-        }
-        return null;
-    }
-
-    /**
-     * Checks whether a key was pressed since the previous frame.
-     *
-     * @return Direction which was pressed
-     */
-    private Direction checkJustPressed(List<Integer> keys, Direction direction) {
-        if (Gdx.input.isKeyJustPressed(keys.get(0)) && direction != Direction.DOWN) {
-            return Direction.UP;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(1)) && direction != Direction.UP) {
-            return Direction.DOWN;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(2)) && direction != Direction.LEFT) {
-            return Direction.RIGHT;
-        } else if (Gdx.input.isKeyJustPressed(keys.get(3)) && direction != Direction.RIGHT) {
-            return Direction.LEFT;
-        }
-        return null;
+        max.moveDirection(game, player);
     }
 
     /**
@@ -222,6 +136,27 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
         actors.addAll(game.getSquares());
         actors.addAll(game.getPlayer1Body());
 
+        addSecondSnake(actors);
+        addFirstSnake(actors);
+
+        if (game.isPaused()) {
+            actors.add(new ColouredSquare(0, 0, getLauncherClass().getWidth(),
+                    getLauncherClass().getHeight(), StyleUtility.getPausedColor()));
+        }
+        return actors;
+    }
+
+    private void addFirstSnake(List<Actor> actors) {
+        Square head = game.getPlayer1Head();
+        actors.add(new ColouredSquare(head.getXvalue() + head.getWidth() / 4,
+                head.getYvalue() + head.getHeight() / 4,
+                head.getWidth() / 2, head.getHeight() / 2, StyleUtility.getGreen()));
+        actors.add(new ColouredSquare(0,
+                getLauncherClass().getHeight(), getLauncherClass().getWidth(),
+                50, StyleUtility.getLightGrey()));
+    }
+
+    private void addSecondSnake(List<Actor> actors) {
         if (game instanceof MultiPlayerGame) {
             MultiPlayerGame mg = (MultiPlayerGame) game;
             actors.addAll(mg.getPlayer2Body());
@@ -231,20 +166,6 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
                     head2.getYvalue() + head2.getHeight() / 4,
                     head2.getWidth() / 2, head2.getHeight() / 2, StyleUtility.getGreen()));
         }
-
-        Square head = game.getPlayer1Head();
-        actors.add(new ColouredSquare(head.getXvalue() + head.getWidth() / 4,
-                head.getYvalue() + head.getHeight() / 4,
-                head.getWidth() / 2, head.getHeight() / 2, StyleUtility.getGreen()));
-        actors.add(new ColouredSquare(0,
-                getLauncherClass().getHeight(), getLauncherClass().getWidth(),
-                50, StyleUtility.getLightGrey()));
-
-        if (game.isPaused()) {
-            actors.add(new ColouredSquare(0, 0, getLauncherClass().getWidth(),
-                    getLauncherClass().getHeight(), StyleUtility.getPausedColor()));
-        }
-        return actors;
     }
 
     /**
@@ -284,21 +205,29 @@ public class SinglePlayerGameScreen extends InputScreen implements Screen {
         //render the score
 
         batch.begin();
-        Square snackSquare = game.getSnack();
-        if (snackSquare != null) {
-            batch.draw(StyleUtility.getSnack(), snackSquare.getXvalue(),
-                    snackSquare.getYvalue(), snackSquare.getWidth(), snackSquare.getHeight());
-        }
 
-        Square powerUpSquare = game.getPowerUpSquare();
-        if (game.getPowerUp() != null && powerUpSquare != null && !game.isActive()) {
-            batch.draw(StyleUtility.getPowerUpTexture(game.getPowerUp()), powerUpSquare.getXvalue(),
-                    powerUpSquare.getYvalue(), powerUpSquare.getWidth(), powerUpSquare.getHeight());
-        }
+        renderSnack(batch);
+        renderPowerup(batch);
 
         for (Actor current : createSecondaryActors()) {
             current.draw(batch, 1);
         }
         batch.end();
+    }
+
+    private void renderSnack(SpriteBatch batch) {
+        Square snackSquare = game.getSnack();
+        if (snackSquare != null) {
+            batch.draw(StyleUtility.getSnack(), snackSquare.getXvalue(),
+                    snackSquare.getYvalue(), snackSquare.getWidth(), snackSquare.getHeight());
+        }
+    }
+
+    private void renderPowerup(SpriteBatch batch) {
+        Square powerUpSquare = game.getPowerUpSquare();
+        if (game.getPowerUp() != null && powerUpSquare != null && !game.isActive()) {
+            batch.draw(StyleUtility.getPowerUpTexture(game.getPowerUp()), powerUpSquare.getXvalue(),
+                    powerUpSquare.getYvalue(), powerUpSquare.getWidth(), powerUpSquare.getHeight());
+        }
     }
 }
